@@ -13,7 +13,7 @@ class Vetor {
         bool altera(unsigned int posicao, int valor);
         
         void adiciona(int elemento);
-        void adiciona(int elemento, unsigned int posicao);
+        void adiciona(unsigned int posicao, int elemento);
         
         void ordena();
         int obterProdutoInterno();
@@ -83,11 +83,28 @@ bool Vetor::altera(unsigned int posicao, int valor) {
 }
 
 void Vetor::adiciona(int elemento) {
+    this->adiciona(__qtdInserida, elemento);
+}
+
+void Vetor::adiciona(unsigned int posicao, int elemento) {
     if (ficouCheio()) {
         redimensiona();
     }
-    __valores[__qtdInserida] = elemento;
+    
+    cout << "posicao: " << posicao << ", valor: " << elemento <<  ", total: " << __qtdInserida << endl;
+    
+    
+    if (posicao < (__qtdInserida -1)) {
+        
+        cout << "Tem que deslocar! " << endl;
+        deslocaParaDireita(posicao, __qtdInserida);
+    }
+    __valores[posicao] = elemento;
+    
     __qtdInserida++;
+    
+    cout << endl;
+    
 }
 
 // bubble sort
@@ -120,10 +137,26 @@ int Vetor::obterProdutoInterno() {
     return resultado;
 }
 
+
+void Vetor::deslocaParaDireita(int inicio, int fim) {
+    int aux = __valores[inicio];
+    do {
+        int proxima = __valores[inicio+1];
+        
+        __valores[inicio+1] = aux;
+        
+        aux = proxima;
+        
+        inicio++;
+    } while(inicio < fim);
+}
+
 void Vetor::deslocaParaEsquerda(int inicio, int fim) {
     for(int i = inicio; i < fim; i++) 
         __valores[i-1] = __valores[i];
 }
+
+
 
 void Vetor::apagaDuplicados() {
     if (__qtdInserida == 0) return;
@@ -190,10 +223,14 @@ int main() {
     Vetor lista(5);
     
     
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 5; i++) {
         lista.adiciona(i+1);
     }
 
+    cout << lista << endl;
+    
+    lista.adiciona(13, 5);
+    
     cout << lista << endl;
     
     return 0;
