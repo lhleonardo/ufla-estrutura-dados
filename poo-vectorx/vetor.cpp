@@ -4,85 +4,102 @@ using namespace std;
 
 class Vetor {
     public: 
-        Vetor();
         Vetor(unsigned int capacidade);
         ~Vetor();
         
-        int obter(unsigned int posicao);        
-        int busca(int elemento);
+        int capacidade();
+        int qtdInserida();
+        
+        int obter(int posicao);
+        bool altera(int posicao, int valor);
+        void adiciona(int elemento);
+        
+        
         void ordena();
-        
         int obterProdutoInterno();
-        int* obterValoresMultiplicadoPor(int numero);
         
-        void removeDuplicados();
-        void remove(unsigned int posicao);
-        void removeIntersecao(Vetor* outro);
+        void apagaDuplicados();
+        void apaga( int posicao);
+        void apagaIntersecao(Vetor obj);
+    
+    protected:
+        bool posicaoValida(int posicao);
+        bool temVaga();
         
         void redimensiona();
         
-        void adiciona(int valor, unsigned int posicao);
-        void modifica(int valor, unsigned int posicao);
-        
-        unsigned int obterCapacidade();
-        unsigned int qtdInserida();        
     private: 
-        int* dados;
-        unsigned int capacidade;
-        unsigned int qtdPreenchida;
+        int* __valores;
+        int  __capacidade;
+        int  __qtdInserida;
         
-        void puxaValores(unsigned int inicio, unsigned int fim);
-        void empurraValores(unsigned int inicio);
-        void copia(int* destino, unsigned int fim);
-        
+        void deslocaParaEsquerda(int inicio, int fim);
+        void deslocaParaDireita(int inicio, int fim);
 };
 
-Vetor::Vetor() {
-    this->capacidade = 10;
-    this->qtdPreenchida = 0;
-    this->dados = new int[this->capacidade];
-}
-
 Vetor::Vetor(unsigned int capacidade) {
-    this->capacidade = capacidade;
-    this->qtdPreenchida = 0;
-    this->dados = new int[capacidade];
+    __capacidade = capacidade;
+    __qtdInserida = 0;
+    __valores = new int[__capacidade];
 }
 
 Vetor::~Vetor() {
-    this->capacidade = 0;
-    this->qtdPreenchida = 0;
-    delete [] this->dados;
+    // pq o erro?
+    //delete [] __valores;
 }
 
-int Vetor::obter(unsigned int posicao) {
-    if (this->qtdPreenchida > 0 and posicao < this->capacidade) {
-        return this->dados[posicao];
+bool Vetor::posicaoValida(int posicao) {
+    return posicao >= 0 and posicao < __qtdInserida;
+}
+
+bool Vetor::temVaga() {
+    return __qtdInserida < __capacidade;
+}
+
+int Vetor::capacidade() {
+    return __capacidade;
+}
+
+int Vetor::qtdInserida() {
+    return __qtdInserida;
+}
+
+int Vetor::obter(int posicao) {
+    if (posicaoValida(posicao)) {
+        return __valores[posicao];
+    } else {
+        return 0;
+    }
+}
+
+bool Vetor::altera(int posicao, int valor) {
+    if (posicaoValida(posicao)) {
+        __valores[posicao] = valor;
+        return true;
     }
     
-    return -1;
+    return false;
 }
 
-int Vetor::busca(int elemento) {
-    for(unsigned int i = 0; i < this->qtdPreenchida; i++) {
-        if (this->dados[i] == elemento) {
-            return i;
-        }
+void Vetor::adiciona(int elemento) {
+    if (not temVaga()) {
+        redimensiona();
     }
-    
-    return -1;
+    __valores[__qtdInserida] = elemento;
+    __qtdInserida++;
 }
 
+// bubble sort
 void Vetor::ordena() {
     bool alterou;
     
     do {
         alterou = false;
-        for(unsigned int i = 0; i < this->qtdPreenchida - 1; i++) {
-            if (this->dados[i] > this->dados[i+1]) {
-                int aux = dados[i];
-                dados[i] = dados[i+1];
-                dados[i+1] = aux;
+        for(int i = 0; i < __qtdInserida - 1; i++) {
+            if (__valores[i] > __valores[i+1]) {
+                int aux = __valores[i];
+                __valores[i] = __valores[i+1];
+                __valores[i+1] = aux;
                 alterou = true;
             }
         }
@@ -91,142 +108,94 @@ void Vetor::ordena() {
 }
 
 int Vetor::obterProdutoInterno() {
-    if (this->qtdPreenchida == 0) return 0;
+    if (__qtdInserida == 0) return 0;
     
     int resultado = 1;
     
-    for(unsigned int i = 0; i < this->qtdPreenchida; i++) {
-        resultado *= this->dados[i];
+    for(int i = 0; i < __qtdInserida; i++) {
+        resultado *= __valores[i];
     }
     
     return resultado;
 }
 
-int* Vetor::obterValoresMultiplicadoPor(int numero) {
-    int* resultado = new int[this->qtdPreenchida];
-
-    for(unsigned int i = 0; i < this->qtdPreenchida; i++) {
-        resultado[i] = this->dados[i] * numero;
-    }
-    
-    return resultado;
+void Vetor::deslocaParaEsquerda(int inicio, int fim) {
+	for(int i = inicio; i < fim; i++) 
+		__valores[i-1] = __valores[i];
 }
 
-void Vetor::puxaValores(unsigned int inicio, unsigned int fim) {
-    for(unsigned int i = inicio; i < fim; i++) 
-        this->dados[inicio-1] = this->dados[inicio];
-        
-}
-
-void Vetor::empurraValores(unsigned int inicio) {
-    if (this->capacidade == this->qtdPreenchida) {
-        redimensiona();
-    }
+void Vetor::apagaDuplicados() {
+	if (__qtdInserida == 0) return;
     
-    int aux = this->dados[inicio];
-    
-    for(unsigned int i = inicio; i < this->qtdPreenchida; i++) {
-        int proximo = this->dados[i+1];
-        this->dados[i+1] = aux;
-        
-        aux = proximo;
-    }
-}
-
-void Vetor::removeDuplicados() {
-    if (this->qtdPreenchida == 0) return;
-    
-    for(unsigned int i = 0; i < this->qtdPreenchida -1; i++) {
-        for(unsigned int j = i+1; j < this->qtdPreenchida; j++) {
-            if (this->dados[i] == this->dados[j]) {
-                this->puxaValores(j+1, this->qtdPreenchida);
-                this->qtdPreenchida--;
+    for(int i = 0; i < __qtdInserida -1; i++) {
+        for(int j = i+1; j < __qtdInserida; j++) {
+            if (__valores[i] == __valores[j]) {
+                apaga(j);
             }
         } 
-    }
+	}
 }
 
-void Vetor::remove(unsigned int posicao) {
-    if (this->qtdPreenchida <= 0 or posicao >= this->capacidade) 
+void Vetor::apaga( int posicao) {
+    if (not posicaoValida(posicao)) 
         return;
         
-    this->puxaValores(posicao+1, this->qtdPreenchida);
-}
-
-void Vetor::removeIntersecao(Vetor* outro) {
-    if (this->qtdPreenchida <= 0) 
-        return; 
-        
-    unsigned int i = 0;
+    deslocaParaEsquerda(posicao+1, __qtdInserida);
     
-    do {
-        for(unsigned int j = 0; j < outro->qtdInserida(); j++) {
-            if (this->dados[i] == outro->obter(j)) {
-                puxaValores(i+1, this->qtdPreenchida);
-                this->qtdPreenchida--;
-            }
-        }
-        
-        i++;
-    } while(i < this->qtdPreenchida);
+    __qtdInserida--;
 }
 
-void Vetor::copia(int* destino, unsigned int fim) {
-    for(unsigned int i = 0; i < fim; i++) {
-        destino[i] = this->dados[i];
-    }
+void Vetor::apagaIntersecao(Vetor outro) {
+	for(int i = 0; i < outro.qtdInserida(); i++) {
+		int j = 0;
+		do {
+			if (outro.obter(i) == this->obter(j)) {
+				this->apaga(j);
+			}
+			
+			j++;
+		} while(j < __qtdInserida);
+	}
 }
 
 void Vetor::redimensiona() {
-    
-    this->capacidade *= 2;
-    
-    int* novosValores = new int[this->capacidade];
-    
-    copia(novosValores, this->capacidade / 2);
-    
-    delete [] this->dados;
-    
-    this->dados = novosValores;
-    
-}
-
-void Vetor::adiciona(int valor, unsigned int posicao) {
-    if (this->capacidade == this->qtdPreenchida or this->capacidade <=posicao) {
-        redimensiona();
-    }
-    
-    if (posicao <= this->qtdPreenchida) {
-        empurraValores(posicao);
-    }
-    
-    this->dados[posicao] = valor;
+	
+	int capacidade = __capacidade + 10;
+	int* novoVetor = new int[capacidade];
+	
+	for(int i = 0; i < __qtdInserida; i++) 
+		novoVetor[i] = __valores[i];
+		
+	delete [] __valores;
+	
+	__valores = novoVetor;	
+	
+	
 }
 
 ostream& operator<<(ostream& os, Vetor &obj){
       os << "[";
-      for(unsigned int i = 0; i < obj.obterCapacidade(); i++) {
+      for (int i = 0; i < obj.qtdInserida(); i++) {
           os << obj.obter(i);
           
-          if (i != (obj.obterCapacidade() - 1)) {
+          if (i != (obj.qtdInserida() - 1)) {
               os << ", ";
           }
       }
+      
+      os << "]" << endl;
       return os;
 }
 
-
 int main() {
-    Vetor valores(10);
+    Vetor lista(5);
     
-    valores.adiciona(1, 0);
-    valores.adiciona(2, 1);
-    valores.adiciona(3, 2);
-    valores.adiciona(4, 3);
-    valores.adiciona(5, 4);
-    valores.adiciona(6, 5);
-    valores.adiciona(12, 1);
+    for(int i = 0; i < 20; i++)
+		lista.adiciona(i+1);
+		
+	cout << lista << endl;
     
-    cout << valores << endl;
     return 0;
 }
+
+
