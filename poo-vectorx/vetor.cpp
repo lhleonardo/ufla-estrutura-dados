@@ -6,32 +6,34 @@ class Vetor {
     public: 
         Vetor(unsigned int capacidade);
         ~Vetor();
+
+        int tamanho();
         
-        int capacidade();
-        int qtdInserida();
+        int obter(unsigned int posicao);
+        bool altera(unsigned int posicao, int valor);
         
-        int obter(int posicao);
-        bool altera(int posicao, int valor);
         void adiciona(int elemento);
-        
+        void adiciona(int elemento, unsigned int posicao);
         
         void ordena();
         int obterProdutoInterno();
         
         void apagaDuplicados();
-        void apaga( int posicao);
+        void apaga(unsigned int posicao);
         void apagaIntersecao(Vetor obj);
     
     protected:
-        bool posicaoValida(int posicao);
-        bool temVaga();
+        bool posicaoValida(unsigned int posicao);
+        bool ficouCheio();
         
         void redimensiona();
         
+        int capacidade();
+        
     private: 
         int* __valores;
-        int  __capacidade;
-        int  __qtdInserida;
+        unsigned int  __capacidade;
+        unsigned int  __qtdInserida;
         
         void deslocaParaEsquerda(int inicio, int fim);
         void deslocaParaDireita(int inicio, int fim);
@@ -44,27 +46,26 @@ Vetor::Vetor(unsigned int capacidade) {
 }
 
 Vetor::~Vetor() {
-    // pq o erro?
-    //delete [] __valores;
+    delete [] __valores;
 }
 
-bool Vetor::posicaoValida(int posicao) {
+bool Vetor::posicaoValida(unsigned int posicao) {
     return posicao >= 0 and posicao < __qtdInserida;
 }
 
-bool Vetor::temVaga() {
-    return __qtdInserida < __capacidade;
+bool Vetor::ficouCheio() {
+    return __qtdInserida == __capacidade;
 }
 
 int Vetor::capacidade() {
     return __capacidade;
 }
 
-int Vetor::qtdInserida() {
+int Vetor::tamanho() {
     return __qtdInserida;
 }
 
-int Vetor::obter(int posicao) {
+int Vetor::obter(unsigned int posicao) {
     if (posicaoValida(posicao)) {
         return __valores[posicao];
     } else {
@@ -72,7 +73,7 @@ int Vetor::obter(int posicao) {
     }
 }
 
-bool Vetor::altera(int posicao, int valor) {
+bool Vetor::altera(unsigned int posicao, int valor) {
     if (posicaoValida(posicao)) {
         __valores[posicao] = valor;
         return true;
@@ -82,7 +83,7 @@ bool Vetor::altera(int posicao, int valor) {
 }
 
 void Vetor::adiciona(int elemento) {
-    if (not temVaga()) {
+    if (ficouCheio()) {
         redimensiona();
     }
     __valores[__qtdInserida] = elemento;
@@ -95,7 +96,7 @@ void Vetor::ordena() {
     
     do {
         alterou = false;
-        for(int i = 0; i < __qtdInserida - 1; i++) {
+        for(unsigned int i = 0; i < __qtdInserida - 1; i++) {
             if (__valores[i] > __valores[i+1]) {
                 int aux = __valores[i];
                 __valores[i] = __valores[i+1];
@@ -112,7 +113,7 @@ int Vetor::obterProdutoInterno() {
     
     int resultado = 1;
     
-    for(int i = 0; i < __qtdInserida; i++) {
+    for(unsigned int i = 0; i < __qtdInserida; i++) {
         resultado *= __valores[i];
     }
     
@@ -120,23 +121,23 @@ int Vetor::obterProdutoInterno() {
 }
 
 void Vetor::deslocaParaEsquerda(int inicio, int fim) {
-	for(int i = inicio; i < fim; i++) 
-		__valores[i-1] = __valores[i];
+    for(int i = inicio; i < fim; i++) 
+        __valores[i-1] = __valores[i];
 }
 
 void Vetor::apagaDuplicados() {
-	if (__qtdInserida == 0) return;
+    if (__qtdInserida == 0) return;
     
-    for(int i = 0; i < __qtdInserida -1; i++) {
-        for(int j = i+1; j < __qtdInserida; j++) {
+    for(unsigned int i = 0; i < __qtdInserida -1; i++) {
+        for(unsigned int j = i+1; j < __qtdInserida; j++) {
             if (__valores[i] == __valores[j]) {
                 apaga(j);
             }
         } 
-	}
+    }
 }
 
-void Vetor::apaga( int posicao) {
+void Vetor::apaga( unsigned int posicao) {
     if (not posicaoValida(posicao)) 
         return;
         
@@ -146,39 +147,37 @@ void Vetor::apaga( int posicao) {
 }
 
 void Vetor::apagaIntersecao(Vetor outro) {
-	for(int i = 0; i < outro.qtdInserida(); i++) {
-		int j = 0;
-		do {
-			if (outro.obter(i) == this->obter(j)) {
-				this->apaga(j);
-			}
-			
-			j++;
-		} while(j < __qtdInserida);
-	}
+    for(int i = 0; i < outro.tamanho(); i++) {
+        unsigned int j = 0;
+        do {
+            if (outro.obter(i) == this->obter(j)) {
+                this->apaga(j);
+            }
+            
+            j++;
+        } while(j < __qtdInserida);
+    }
 }
 
 void Vetor::redimensiona() {
-	
-	int capacidade = __capacidade + 10;
-	int* novoVetor = new int[capacidade];
-	
-	for(int i = 0; i < __qtdInserida; i++) 
-		novoVetor[i] = __valores[i];
-		
-	delete [] __valores;
-	
-	__valores = novoVetor;	
-	
-	
+    __capacidade *= 2;
+    int* valores = new int[__capacidade];
+    
+    for(unsigned int i = 0; i < __capacidade; i++) 
+        valores[i] = __valores[i];
+    
+    delete [] __valores;
+    
+    __valores = valores;
+
 }
 
 ostream& operator<<(ostream& os, Vetor &obj){
       os << "[";
-      for (int i = 0; i < obj.qtdInserida(); i++) {
+      for (int i = 0; i < obj.tamanho(); i++) {
           os << obj.obter(i);
           
-          if (i != (obj.qtdInserida() - 1)) {
+          if (i != (obj.tamanho() - 1)) {
               os << ", ";
           }
       }
@@ -190,12 +189,12 @@ ostream& operator<<(ostream& os, Vetor &obj){
 int main() {
     Vetor lista(5);
     
-    for(int i = 0; i < 20; i++)
-		lista.adiciona(i+1);
-		
-	cout << lista << endl;
+    
+    for (int i = 0; i < 16; i++) {
+        lista.adiciona(i+1);
+    }
+
+    cout << lista << endl;
     
     return 0;
 }
-
-
