@@ -21,6 +21,8 @@ class Vetor {
         void apagaDuplicados();
         void apaga(unsigned int posicao);
         void apagaIntersecao(Vetor obj);
+        
+        bool posicaoOcupada(unsigned int posicao);
     
     protected:
         bool posicaoValida(unsigned int posicao);
@@ -82,6 +84,14 @@ bool Vetor::altera(unsigned int posicao, int valor) {
     return false;
 }
 
+bool Vetor::posicaoOcupada(unsigned int posicao) {
+	if (posicao <= __qtdInserida - 1) {
+		return true;
+	}
+	
+	return false;
+}
+
 void Vetor::adiciona(int elemento) {
     this->adiciona(__qtdInserida, elemento);
 }
@@ -90,20 +100,14 @@ void Vetor::adiciona(unsigned int posicao, int elemento) {
     if (ficouCheio()) {
         redimensiona();
     }
-    
-    cout << "posicao: " << posicao << ", valor: " << elemento <<  ", total: " << __qtdInserida << endl;
-    
-    
-    if (posicao < (__qtdInserida -1)) {
-        
-        cout << "Tem que deslocar! " << endl;
+     
+    if (posicaoOcupada(posicao)) {
+		cout << "Tem que deslocar" << endl;
         deslocaParaDireita(posicao, __qtdInserida);
     }
     __valores[posicao] = elemento;
     
     __qtdInserida++;
-    
-    cout << endl;
     
 }
 
@@ -222,16 +226,15 @@ ostream& operator<<(ostream& os, Vetor &obj){
 int main() {
     Vetor lista(5);
     
-    
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 6; i++) {
         lista.adiciona(i+1);
     }
 
     cout << lista << endl;
     
-    lista.adiciona(13, 5);
-    
-    cout << lista << endl;
+	lista.adiciona(4, 16);
+	
+	cout << lista << endl;
     
     return 0;
 }
