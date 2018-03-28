@@ -79,7 +79,7 @@ void Lista::insereNoInicio(Dado dado) {
         primeiro = elemento;
         ultimo = elemento;
     } else {
-        primeiro->proximo = elemento;
+        elemento->proximo = primeiro;
         primeiro = elemento;
     }
     qtdElementos++;
@@ -122,7 +122,59 @@ void Lista::insereNaPosicao(unsigned int posicao, Dado dado) {
     }
 }
 
+void Lista::imprime() {
+    No* aux = this->primeiro;
+    
+    cout << "[";
+    while(aux != NULL) {
+        cout << aux->dado;
+        if (aux->proximo != NULL) cout << ", ";
+        
+        aux = aux->proximo;
+    }
+    cout << "]" << endl;
+}
+
+void Lista::remove(unsigned int posicao) {
+    if(posicaoValida(posicao)) {
+        No* aux = primeiro;
+        
+        for(unsigned int i = 1; i < (posicao-1); i++)
+            aux = aux->proximo;
+        
+        No* selecionado = aux->proximo;
+        
+        aux->proximo = selecionado->proximo;
+        delete selecionado;
+        qtdElementos--;        
+    } else {
+        cerr << "Não foi possivel realizar a remocao. Posicao invalida ou inexistente" << endl;
+    }
+}
+
 int main() {
+    Lista lista;
+    
+    lista.insere(10);
+    lista.insere(20);
+    lista.insere(30);
+    lista.insere(40);
+    lista.insere(50);
+    
+    lista.insereNaPosicao(1, 15);
+    lista.insereNaPosicao(3, 25);
+    lista.insereNaPosicao(4, 28);
+    
+    lista.insereNoFim(55);
+    
+    
+    lista.imprime();
+    
+    lista.insereNoInicio(5);
+    
+    lista.remove(6);
+    
+    lista.imprime();
     
     return 0;
 }
