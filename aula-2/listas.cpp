@@ -9,13 +9,18 @@ class No {
     private:
         Dado dado;
         No* proximo;
+        No* anterior;
     public: 
+        Dado valor();
         No(Dado d = 0);
 };
 
 No::No(Dado d) : dado(d) {
     this->proximo = NULL;
+    this->anterior = NULL;
 }
+
+Dado No::valor() { return dado; }
 
 class Lista {
     private:
@@ -25,17 +30,25 @@ class Lista {
     public: 
         Lista();
         ~Lista();
+        
         void insere(Dado dado);
         void insereNoFim(Dado dado);
         void insereNoInicio(Dado dado);
         void insereNaPosicao(unsigned int posicao, Dado dado);
+        
         void imprime();
-        inline bool vazia();
-        void remove(unsigned int posicao);
-        bool posicaoValida(unsigned int posicao);
-        int procura(Dado valor); // retorna a posicao
         void imprimeReverso();
+        
+        inline bool vazia();
+        inline bool posicaoValida(unsigned int posicao);
+        
+        void remove(unsigned int posicao);
+        unsigned int procura(Dado valor); // retorna a posicao
         No* acessaPosicao(unsigned int posicao); 
+        
+        
+        
+        
 };
 
 Lista::Lista() {
@@ -61,12 +74,22 @@ void Lista::insereNoFim(Dado dado) {
     No* elemento = new No(dado);
     
     if (vazia()) {
-        // primeiro elemento
+        // primeiro elemento da lista
         primeiro = elemento;
         ultimo = elemento;
     } else {
+        // Se o elemento A eh o ultimo elemento da lista, e o elemento 
+        // B eh inserido no fim, de forma com que o A seja antecessor a 
+        // B, entao:
+        // 
+        // [... , A, B] => A <-> B
+        // A tem como sucessor B e B por sua vez tem como antecessor A
+        
+        // A -> B
         ultimo->proximo = elemento;
-        ultimo = elemento;        
+        // A <- B
+        elemento->anterior = ultimo;
+        ultimo = elemento;
     }
     
     qtdElementos++;
@@ -76,16 +99,27 @@ void Lista::insereNoInicio(Dado dado) {
     No* elemento = new No(dado);
     
     if (vazia()) {
+        // primeiro elemento da lista vazia
         primeiro = elemento;
         ultimo = elemento;
     } else {
+        // Seja uma lista que possui o elemento A no seu inicio, e agora
+        // o elemento B devera ser o novo primeiro elemento, pode-se dizer
+        // que: 
+        // 
+        // 1) A tera como antecessor B
+        // 2) B tera como sucessor A
+        
+        // B -> A
         elemento->proximo = primeiro;
+        // B <- A
+        primeiro->anterior = elemento;
         primeiro = elemento;
     }
     qtdElementos++;
 }
 
-bool Lista::posicaoValida(unsigned int posicao) {
+inline bool Lista::posicaoValida(unsigned int posicao) {
     return posicao >=0 and posicao <= qtdElementos;
 }
 
@@ -97,10 +131,12 @@ void Lista::insereNaPosicao(unsigned int posicao, Dado dado) {
             primeiro = elemento;
             ultimo = elemento;
         } else if (posicao == 0) { // ou ta no inicio
-            primeiro->proximo = elemento;
+            elemento->proximo = primeiro;
             primeiro = elemento;
         } else if (posicao == qtdElementos) { // ou ta no fim
+            // Olhar o metodo: insereNoFim();
             ultimo->proximo = elemento;
+            elemento->anterior = ultimo;
             ultimo = elemento;
         } else { // ou ta no meio da lista
             No* aux = primeiro;
@@ -113,7 +149,19 @@ void Lista::insereNaPosicao(unsigned int posicao, Dado dado) {
             // coloca o elemento na frente do aux, fazendo
             // com que seu proximo elemento seja o proximo definido
             // pelo aux
+            
+            // Seja os elementos A e B, em sequencia, e o elemento C, que
+            // deve ser adicionado entre A e B. A disposicao destes 
+            // elementos, em relacao a seus antecessores e sucessores, sera:
+            //
+            // 1) O elemento A nao tem antecessor e seu sucessor sera C
+            // 2) O elemento B nao tera sucessor e seu antecessor sera C
+            // 3) O elemento C tera A como antecessor e B como sucessor,
+            //
+            // Assim ficando: A <-> C <-> B
             elemento->proximo = aux->proximo;
+            elemento->anterior = aux;
+            elemento->proximo->anterior = elemento;
             aux->proximo = elemento;
         }
         qtdElementos++;
@@ -142,13 +190,69 @@ void Lista::remove(unsigned int posicao) {
         for(unsigned int i = 1; i < (posicao-1); i++)
             aux = aux->proximo;
         
-        No* selecionado = aux->proximo;
+        // Seja os elementos A, B e C, dispostos assim em sequencia, e o 
+        // elemento B eh removido desta lista, pode-se afirmar que, em sua
+        // nova disposicao:
+        //
+        // 1) A tera como sucessor C;
+        // 2) C tera como antecessor A
         
+        No* selecionado = aux->proximo;
+        // A -> C
         aux->proximo = selecionado->proximo;
+        // A <- C
+        aux->proximo->anterior = aux;        
         delete selecionado;
         qtdElementos--;        
     } else {
         cerr << "Não foi possivel realizar a remocao. Posicao invalida ou inexistente" << endl;
+    }
+}
+
+unsigned int Lista::procura(Dado elemento) {
+    No* atual = primeiro;
+    unsigned int contador = 0;
+    
+    while(atual != NULL) {
+        if (atual->dado == elemento) {
+            return contador;
+        }
+        
+        contador++;
+        atual = atual->proximo;
+    }
+    
+    return -1;
+}
+
+void Lista::imprimeReverso() {
+    cout << "[";
+    
+    No* atual = ultimo;
+    
+    while(atual != NULL) {
+        cout << atual->dado;
+       
+        if (atual->anterior != NULL) cout << ", ";
+        
+        //cout << endl;
+        atual = atual->anterior;
+    }
+    
+    cout << "]";
+}
+
+No* Lista::acessaPosicao(unsigned int posicao) {
+    if(posicaoValida(posicao)) {
+        No* elemento = primeiro;
+        
+        for(unsigned int i = 0; i < posicao; i++)
+            elemento = elemento->proximo;
+        
+        return elemento;
+    } else {
+        cerr << "Posicao invalida!" << endl;
+        return NULL;
     }
 }
 
@@ -167,14 +271,17 @@ int main() {
     
     lista.insereNoFim(55);
     
-    
     lista.imprime();
+    int posicao;
+    cout << "Digite a posicao: ";
+    cin >> posicao;
     
-    lista.insereNoInicio(5);
+    No* selecionado = lista.acessaPosicao(posicao);
     
-    lista.remove(6);
-    
-    lista.imprime();
+    if (selecionado != NULL) {
+        cout << "Posicao: " << posicao << ", ";
+        cout << "valor: " << selecionado->valor() << endl;
+    }    
     
     return 0;
 }

@@ -2,16 +2,16 @@
    lista dinamicamente encadeada e uma aplicação de teste dessa classe.
    A classe deverá possuir os seguintes métodos:
 
-    void insere(Dado dado);
-    void insereNoFim(Dado dado);
-    void insereNoInicio(Dado dado);
-    void insereNaPosicao(int posicao, Dado dado);
-    void imprime();
-    inline bool vazia();
-        void remove(int posicao);
-    int procura(Dado valor); // retorna a posicao
-    void imprimeReverso();
-    noh* acessaPosicao(int posicao); 
+   OK void insere(Dado dado); 
+   OK void insereNoFim(Dado dado);
+   OK void insereNoInicio(Dado dado);
+   OK void insereNaPosicao(int posicao, Dado dado);
+   OK void imprime();
+   OK inline bool vazia();
+   OK void remove(int posicao);
+   OK int procura(Dado valor); // retorna a posicao
+   OK void imprimeReverso();
+   OK noh* acessaPosicao(int posicao); 
 
 2. Implemente construtor de cópia e sobrecarga do operador de igualdade 
    para a lista encadeada.
