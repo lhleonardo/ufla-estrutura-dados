@@ -1,4 +1,4 @@
-1. A partir dos arquivos fornecidos pelos professores, implemente uma 
+OK 1. A partir dos arquivos fornecidos pelos professores, implemente uma 
    lista dinamicamente encadeada e uma aplicação de teste dessa classe.
    A classe deverá possuir os seguintes métodos:
 
