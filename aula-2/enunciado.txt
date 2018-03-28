@@ -1,0 +1,88 @@
+1. A partir dos arquivos fornecidos pelos professores, implemente uma 
+   lista dinamicamente encadeada e uma aplicação de teste dessa classe.
+   A classe deverá possuir os seguintes métodos:
+
+    void insere(Dado dado);
+    void insereNoFim(Dado dado);
+    void insereNoInicio(Dado dado);
+    void insereNaPosicao(int posicao, Dado dado);
+    void imprime();
+    inline bool vazia();
+        void remove(int posicao);
+    int procura(Dado valor); // retorna a posicao
+    void imprimeReverso();
+    noh* acessaPosicao(int posicao); 
+
+2. Implemente construtor de cópia e sobrecarga do operador de igualdade 
+   para a lista encadeada.
+
+3. Modifique a classe lista implementada anteriormente para implementar 
+   uma lista duplamente encadeada.
+
+4. Escreva uma função que troque de posição duas células de uma mesma
+   lista encadeada.
+
+5. Implemente um construtor da lista encadeada para permitir a construção
+   da lista a partir de um vetor com n elementos.
+
+6. Modifique a lista dinamicamente encadeada ou a lista duplamente encadeada 
+   para implementar uma lista ordenada. Ou seja, a inserção e remoção deverão
+   ser realizadas mantendo a ordem dos elementos. Implemente um método para 
+   realizar busca binária nessa lista.
+
+7. Modifique a lista dinamicamente encadeada sobrecarregar o operador +. 
+   Ou seja, dado L1 + L1, você irá concatenar L1 com L2.
+
+8. Modifique a lista dinamicamente encadeada para implementar um método
+   remove, que recebe outro objeto lista como parâmetro.
+   Ou seja, dada L1.remove(L2), você irá percorrer L1 removendo os 
+   elementos identificados em L2. Desejável que este método seja 
+   implementado como sobrecarga do operador -.
+
+9. Modifique a lista dinamicamente encadeada, para implementar um método
+   removeRepetidos(), que percorre seus elementos e remove aqueles que 
+   estão repetidos. No caso de repetição, mantenha a primeira ocorrência.
+
+10. Implemente um método que recebe como parâmetro um valor inteiro n e 
+    divide a lista encadeada em duas. A lista atual será mantida até a 
+    posição n, e o retorno do método será uma segunda lista que começa 
+    no primeiro nó logo após a posição n na lista original. 
+
+11. Modifique a lista dinamicamente encadeada, para implementar um 
+    método inverter(), que inverte a posição dos elementos da lista 
+    (primeiro passa a ser o último e vice-versa). 
+    O resultado deve ser armazenado na própria lista e não em uma 
+    nova lista. Observação importante: a inversão não deve ser realizada
+    alterando o valor dos nós, mas sim alterando o encadeamento deles. 
+
+12. Implemente uma lista circular encadeada, ou seja, o último elemento 
+    da lista aponta para o primeiro. Utilize esta implementação para 
+    resolver o problema de Josephus que possui a seguinte descrição: 
+    
+    a) construa uma lista encadeada circular para representar uma "roda" 
+       de N pessoas numeradas de 1 a N; 
+    b) em seguida, elimina cada M-ésima pessoa da lista a partir da primeira; 
+    c) por fim, imprima o número da pessoa que sobrar.
+    
+13. Matrizes esparsas são matrizes que possuem uma grande quantidade de 
+    elementos que valem zero. Para estas matrizes, é possível economizar
+    um espaço significativo de memória se apenas os termos diferentes de
+    zero forem armazenados. As operações usuais sobre estas matrizes 
+    (somar, multiplicar, inverter, etc.) também podem ser feitas em 
+    tempo muito menor se não armazenarmos as posições que contém zeros. 
+    Uma maneira eficiente de representar esse tipo de estrutura é utilizar
+    listas encadeadas. É possível encontrar com relativa facilidade duas 
+    formas de implementação de matrizes esparsas com essa abordagem. 
+    Na primeira abordagem, cada nó armazena os seguintes 
+    elementos: linha, coluna, valor e apontamento para o próximo nó da 
+    matriz. Implemente um TAD matriz esparsa utilizando esta abordagem.
+
+14. A implementação de matriz esparsa utilizando a abordagem anterior 
+    possui como desvantagem: perda da natureza bidimensional de matriz, 
+    com acesso ineficiente à linha e à coluna. Uma outra abordagem é 
+    utilizar, para cada matriz, dois vetores com M ponteiros para as 
+    linhas e N ponteiros para as colunas (considerando matriz MxN). 
+    Nesse caso, cada nó armazena os seguintes elementos: linha, coluna,
+    valor, apontamento para o próximo nó na mesma linha e apontamento 
+    para o próximo nó na mesma coluna.  
+    Implemente um TAD matriz esparsa utilizando esta abordagem. 

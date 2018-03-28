@@ -1,4 +1,9 @@
 *
+
+#arquivos
 !*.cpp
 !*.txt
-!/
+
+# pastas
+!**/*.cpp
+!**/*.txt
