@@ -11,24 +11,18 @@ class No {
         No* proximo;
         No* anterior;
     public: 
-		No(const No& outro);
-		
+        No(const No& outro);
+        
         Dado valor();
         No(Dado d = 0);
 };
 
 No::No(const No& outro) {
-	cout << "construtor de copia no" << endl;
-	this->dado = outro.dado;
-	
-	No* x, *y;
-	if (outro.anterior != NULL)
-		x = outro.anterior;
-	if (outro.proximo != NULL) 
-		y = outro.proximo;
-	
-	this->anterior = x;
-	this->proximo = y;
+    cout << "construtor de copia no" << endl;
+    this->dado = outro.dado;
+    
+    this->anterior = outro.anterior;
+    this->proximo = outro.proximo;
 }
 
 No::No(Dado d) : dado(d) {
@@ -63,7 +57,9 @@ class Lista {
         unsigned int procura(Dado valor); // retorna a posicao
         No* acessaPosicao(unsigned int posicao); 
         
-        Lista& operator = (const Lista& outra);  
+        Lista& operator = (const Lista& outra); 
+        
+        void trocaPosicoes(unsigned int x, unsigned int y); 
         
 };
 
@@ -74,15 +70,15 @@ Lista::Lista() {
 }
 
 Lista::Lista(const Lista& outra) {
-	cout << "construtor de copia lista" << endl;
-	
-	this->qtdElementos = outra.qtdElementos;
-	
-	No primeiro = (*outra.primeiro);
-	No ultimo = (*outra.ultimo);
-	
-	this->primeiro = &primeiro;
-	this->ultimo = &ultimo;
+    cout << "construtor de copia lista" << endl;
+    
+    this->qtdElementos = outra.qtdElementos;
+    
+    No primeiro = (*outra.primeiro);
+    No ultimo = (*outra.ultimo);
+    
+    this->primeiro = &primeiro;
+    this->ultimo = &ultimo;
 }
 
 
@@ -285,6 +281,22 @@ No* Lista::acessaPosicao(unsigned int posicao) {
     }
 }
 
+void Lista::trocaPosicoes(unsigned int x, unsigned int y) {
+    No* posX = this->acessaPosicao(x);
+    No* anteriorX = posX->anterior;
+    No* proximoX = posX->proximo;
+    
+    No* posY = this->acessaPosicao(y);
+    No* anteriorY = posY->anterior;
+    No* proximoY = posY->proximo;
+    
+    
+    posX->anterior = posY;
+    posY->anterior = posX;
+    posX->proximo = posY->proximo;
+    posY->anterior = proximoX;
+}
+
 
 
 
@@ -301,8 +313,15 @@ int main() {
     lista.insereNaPosicao(3, 25);
     lista.insereNaPosicao(4, 28);
     
-    Lista novaLista = lista;
+    lista.imprime();
     
+    cout << "Digite as posicoes que deverao ser trocadas: ";
+    unsigned int x, y;
+    
+    cin >> x >> y;
+    
+    lista.trocaPosicoes(x, y);
+    lista.imprime();
     
     return 0;
 }
