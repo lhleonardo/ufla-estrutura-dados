@@ -11,9 +11,25 @@ class No {
         No* proximo;
         No* anterior;
     public: 
+		No(const No& outro);
+		
         Dado valor();
         No(Dado d = 0);
 };
+
+No::No(const No& outro) {
+	cout << "construtor de copia no" << endl;
+	this->dado = outro.dado;
+	
+	No* x, *y;
+	if (outro.anterior != NULL)
+		x = outro.anterior;
+	if (outro.proximo != NULL) 
+		y = outro.proximo;
+	
+	this->anterior = x;
+	this->proximo = y;
+}
 
 No::No(Dado d) : dado(d) {
     this->proximo = NULL;
@@ -29,6 +45,7 @@ class Lista {
         unsigned int qtdElementos;
     public: 
         Lista();
+        Lista(const Lista& outra);
         ~Lista();
         
         void insere(Dado dado);
@@ -46,8 +63,7 @@ class Lista {
         unsigned int procura(Dado valor); // retorna a posicao
         No* acessaPosicao(unsigned int posicao); 
         
-        
-        
+        Lista& operator = (const Lista& outra);  
         
 };
 
@@ -56,6 +72,19 @@ Lista::Lista() {
     ultimo = NULL;
     qtdElementos = 0;
 }
+
+Lista::Lista(const Lista& outra) {
+	cout << "construtor de copia lista" << endl;
+	
+	this->qtdElementos = outra.qtdElementos;
+	
+	No primeiro = (*outra.primeiro);
+	No ultimo = (*outra.ultimo);
+	
+	this->primeiro = &primeiro;
+	this->ultimo = &ultimo;
+}
+
 
 Lista::~Lista() {
     delete primeiro;
@@ -256,6 +285,9 @@ No* Lista::acessaPosicao(unsigned int posicao) {
     }
 }
 
+
+
+
 int main() {
     Lista lista;
     
@@ -269,19 +301,8 @@ int main() {
     lista.insereNaPosicao(3, 25);
     lista.insereNaPosicao(4, 28);
     
-    lista.insereNoFim(55);
+    Lista novaLista = lista;
     
-    lista.imprime();
-    int posicao;
-    cout << "Digite a posicao: ";
-    cin >> posicao;
-    
-    No* selecionado = lista.acessaPosicao(posicao);
-    
-    if (selecionado != NULL) {
-        cout << "Posicao: " << posicao << ", ";
-        cout << "valor: " << selecionado->valor() << endl;
-    }    
     
     return 0;
 }
