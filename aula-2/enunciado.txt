@@ -13,7 +13,7 @@ OK 1. A partir dos arquivos fornecidos pelos professores, implemente uma
    OK void imprimeReverso();
    OK noh* acessaPosicao(int posicao); 
 
-2. Implemente construtor de cópia e sobrecarga do operador de igualdade 
+OK 2. Implemente construtor de cópia e sobrecarga do operador de igualdade 
    para a lista encadeada.
 
 3. Modifique a classe lista implementada anteriormente para implementar 
