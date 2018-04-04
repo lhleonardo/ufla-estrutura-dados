@@ -11,8 +11,7 @@ class No {
         No* proximo;
         No* anterior;
     public:     
-        Dado valor();
-        No(Dado d = 0);
+       No(Dado d = 0);
 };
 
 No::No(Dado d) : dado(d) {
@@ -20,18 +19,16 @@ No::No(Dado d) : dado(d) {
     this->anterior = NULL;
 }
 
-Dado No::valor() { return dado; }
-
 class Lista {
     private:
         No* primeiro;
         No* ultimo;
         unsigned int qtdElementos;
         void apagaTudo();
-        void copia(const Lista& origem);
+        void trocaPosicaoFim(No* posX, No* posY);
+        void trocaPosicaoInicio(No* posX, No* posY);
     public: 
         Lista();
-        Lista(const Lista& outra);
         ~Lista();
         
         inline bool vazia();
@@ -46,15 +43,11 @@ class Lista {
         void imprimeReverso();
         
         void remove(unsigned int posicao);
-        //void remove(Dado valor);
 
         No* acessaPosicao(unsigned int posicao); 
-        unsigned int procura(Dado valor); // retorna a posicao
-        
+        int procura(Dado valor); // retorna a posicao
+
         void trocaPosicoes(unsigned int x, unsigned int y); 
-        
-        Lista& operator = (const Lista& outra);
-        
 };
 
 Lista::Lista() {
@@ -64,12 +57,10 @@ Lista::Lista() {
 }
 
 void Lista::apagaTudo() {
-    if ()
     No* atual = primeiro;
     No* temp;
 
     while(atual != NULL) {
-        cout << "temp atual" << endl;
         temp = atual;
         atual = atual->proximo;
         delete temp;
@@ -80,24 +71,8 @@ void Lista::apagaTudo() {
     ultimo = NULL;
 }
 
-void Lista::copia(const Lista& origem) {
-    No* atual = origem.primeiro;
-    while(atual != NULL) {
-        this->insere(atual->dado);
-        atual = atual->proximo;
-    }
-}
-
-Lista::Lista(const Lista& outra) {
-    cout << "construtor de copia lista" << endl;
-
-    apagaTudo();
-    cout << "apagou tudo" << endl;
-    copia(outra);
-}
 
 Lista::~Lista() {
-    cout << "destrutor" << endl;
     apagaTudo();
 }
 
@@ -222,12 +197,23 @@ void Lista::imprime() {
     cout << "]" << endl;
 }
 
+No* Lista::acessaPosicao(unsigned int posicao) {
+    if(posicaoValida(posicao)) {
+        No* elemento = primeiro;
+        
+        for(unsigned int i = 0; i < posicao; i++)
+            elemento = elemento->proximo;
+        
+        return elemento;
+    } else {
+        cerr << "Posicao invalida!" << endl;
+        return NULL;
+    }
+}
+
 void Lista::remove(unsigned int posicao) {
     if(posicaoValida(posicao)) {
-        No* aux = primeiro;
         
-        for(unsigned int i = 1; i < (posicao-1); i++)
-            aux = aux->proximo;
         
         // Seja os elementos A, B e C, dispostos assim em sequencia, e o 
         // elemento B eh removido desta lista, pode-se afirmar que, em sua
@@ -236,19 +222,31 @@ void Lista::remove(unsigned int posicao) {
         // 1) A tera como sucessor C;
         // 2) C tera como antecessor A
         
-        No* selecionado = aux->proximo;
-        // A -> C
-        aux->proximo = selecionado->proximo;
-        // A <- C
-        aux->proximo->anterior = aux;        
-        delete selecionado;
-        qtdElementos--;        
+        if (posicao == 0) {
+            // primeiro
+            No* elemento = primeiro;
+            primeiro = elemento->proximo;
+            elemento->anterior = NULL;
+            delete elemento;
+        } else if (posicao == (qtdElementos-1)) {
+            // ultimo
+            No* elemento = ultimo;
+            ultimo = elemento->anterior;
+            ultimo->proximo = NULL;
+            delete elemento;
+        } else {
+            No* elemento = this->acessaPosicao(posicao);
+            No* antecessor = elemento->anterior;
+            antecessor->proximo = elemento->proximo;
+            delete elemento;
+        }
+        qtdElementos--;
     } else {
         cerr << "Não foi possivel realizar a remocao. Posicao invalida ou inexistente" << endl;
     }
 }
 
-unsigned int Lista::procura(Dado elemento) {
+int Lista::procura(Dado elemento) {
     No* atual = primeiro;
     unsigned int contador = 0;
     
@@ -281,51 +279,69 @@ void Lista::imprimeReverso() {
     cout << "]";
 }
 
-No* Lista::acessaPosicao(unsigned int posicao) {
-    if(posicaoValida(posicao)) {
-        No* elemento = primeiro;
-        
-        for(unsigned int i = 0; i < posicao; i++)
-            elemento = elemento->proximo;
-        
-        return elemento;
-    } else {
-        cerr << "Posicao invalida!" << endl;
-        return NULL;
-    }
+void Lista::trocaPosicaoInicio(No* posX, No* posY) {
+    No* proximoX = posX->proximo;
+    No* anteriorY = posY->anterior;
+    No* proximoY = posY->proximo;
+
+    posX->anterior = anteriorY;
+    anteriorY->proximo = posX;
+
+    posX->proximo = proximoY;
+    proximoY->anterior = posX;
+
+    posY->proximo = proximoX;
+    posY->anterior = NULL;
+
+    primeiro = posY;
+}
+
+void Lista::trocaPosicaoFim(No* posX, No* posY) {
+    No* anteriorY = posY->anterior;
+    posY->anterior = posX->anterior;
+    posX->anterior->proximo = posY;
+    posY->proximo = posX->proximo;
+
+    posX->proximo = NULL;
+    posX->anterior = anteriorY;
+    anteriorY->proximo = posX;
+    ultimo = posX;           
 }
 
 void Lista::trocaPosicoes(unsigned int x, unsigned int y) {
-    if ((y - x) > 1) {
-        // adjacentes
-    }
-    
     No* posX = this->acessaPosicao(x);
     No* posY = this->acessaPosicao(y);
+
+    if ((y - x) == 1) {
+        // podem ser adjacentes, mas pode que um deles tambem esteja nos extremos.
+        // ou os dois, vai que a lista so tem 2 elementos
+        
+    } else if (x == 0) {
+        trocaPosicaoInicio(posX, posY);
+
+    } else if (y == (qtdElementos-1)){ 
+        trocaPosicaoFim(posX, posY);
+
+    } else {    
+        cout << "fez nada"    << endl;
+        No* anteriorX = posX->anterior;
+        No* proximoX = posX->proximo;
+
+        posX->anterior = posY->anterior;
+        posX->proximo = posY -> proximo;
+
+        posY->anterior = anteriorX;
+        posY->proximo = proximoX;
+
+        posX->anterior->proximo = posX;
+        posX->proximo->anterior = posX;
+
+        posY->anterior->proximo = posY;
+        posY->proximo->anterior = posY;
+
+    }
     
-    No* anteriorX = posX->anterior;
-    No* proximoX = posX->proximo;
-
-    posX->anterior = posY->anterior;
-    posX->proximo = posY -> proximo;
-
-    posY->anterior = anteriorX;
-    posY->proximo = proximoX;
-
-    posX->anterior->proximo = posX;
-    posX->proximo->anterior = posX;
-
-    posY->anterior->proximo = posY;
-    posY->proximo->anterior = posY;
     
-}
-
-Lista& Lista::operator = (const Lista& outra) {
-    this->apagaTudo();
-
-    this->copia(outra);
-
-    return *this;
 }
 
 int main() {
@@ -337,15 +353,19 @@ int main() {
     lista.insere(40);
     lista.insere(50);
     
-    // lista.insereNaPosicao(1, 15);
-    // lista.insereNaPosicao(3, 25);
-    // lista.insereNaPosicao(4, 28);
+    lista.insereNaPosicao(1, 15);
+    lista.insereNaPosicao(3, 25);
+    lista.insereNaPosicao(4, 28);
     
     lista.imprime();
 
-//    Lista novaLista = lista;
+    int x, y;
+    cin >> x >> y;
 
-    // Lista lista3;
-    // lista3 = lista;
+    lista.trocaPosicoes(x, y);
+
+
+    lista.imprime();
+
     return 0;
 }
