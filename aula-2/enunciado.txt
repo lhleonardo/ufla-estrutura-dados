@@ -16,13 +16,13 @@ OK 1. A partir dos arquivos fornecidos pelos professores, implemente uma
 OK 2. Implemente construtor de cópia e sobrecarga do operador de igualdade 
    para a lista encadeada.
 
-3. Modifique a classe lista implementada anteriormente para implementar 
+OK 3. Modifique a classe lista implementada anteriormente para implementar 
    uma lista duplamente encadeada.
 
-4. Escreva uma função que troque de posição duas células de uma mesma
+OK 4. Escreva uma função que troque de posição duas células de uma mesma
    lista encadeada.
 
-5. Implemente um construtor da lista encadeada para permitir a construção
+OK 5. Implemente um construtor da lista encadeada para permitir a construção
    da lista a partir de um vetor com n elementos.
 
 6. Modifique a lista dinamicamente encadeada ou a lista duplamente encadeada 
@@ -30,10 +30,10 @@ OK 2. Implemente construtor de cópia e sobrecarga do operador de igualdade
    ser realizadas mantendo a ordem dos elementos. Implemente um método para 
    realizar busca binária nessa lista.
 
-7. Modifique a lista dinamicamente encadeada sobrecarregar o operador +. 
+OK 7. Modifique a lista dinamicamente encadeada sobrecarregar o operador +. 
    Ou seja, dado L1 + L1, você irá concatenar L1 com L2.
 
-8. Modifique a lista dinamicamente encadeada para implementar um método
+OK 8. Modifique a lista dinamicamente encadeada para implementar um método
    remove, que recebe outro objeto lista como parâmetro.
    Ou seja, dada L1.remove(L2), você irá percorrer L1 removendo os 
    elementos identificados em L2. Desejável que este método seja 

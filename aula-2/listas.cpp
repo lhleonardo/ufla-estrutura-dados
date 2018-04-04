@@ -29,6 +29,7 @@ class Lista {
         void trocaPosicaoInicio(No* posX, No* posY);
     public: 
         Lista();
+        Lista( Dado* dados, unsigned int quantidade);
         ~Lista();
         
         inline bool vazia();
@@ -43,17 +44,33 @@ class Lista {
         void imprimeReverso();
         
         void remove(unsigned int posicao);
+        void remove(Lista& outra);
 
         No* acessaPosicao(unsigned int posicao); 
         int procura(Dado valor); // retorna a posicao
 
         void trocaPosicoes(unsigned int x, unsigned int y); 
+        
+        Lista& divide(unsigned int n);
+        
+        Lista& operator+(const Lista& outra);
+        Lista& operator+=(const Lista& outra); 
 };
 
 Lista::Lista() {
     primeiro = NULL;
     ultimo = NULL;
     qtdElementos = 0;
+}
+
+Lista::Lista(Dado* dados, unsigned int quantidade) {
+    primeiro = NULL;
+    ultimo = NULL;
+    qtdElementos = 0;
+    
+    for(unsigned int i = 0; i < quantidade; i++)
+        this->insere(dados[i]);
+    
 }
 
 void Lista::apagaTudo() {
@@ -238,12 +255,35 @@ void Lista::remove(unsigned int posicao) {
             No* elemento = this->acessaPosicao(posicao);
             No* antecessor = elemento->anterior;
             antecessor->proximo = elemento->proximo;
+            elemento->proximo->anterior = antecessor;
             delete elemento;
         }
         qtdElementos--;
     } else {
         cerr << "Não foi possivel realizar a remocao. Posicao invalida ou inexistente" << endl;
     }
+}
+
+void Lista::remove(Lista& outra) {
+    No* atual = primeiro;
+    unsigned int posicaoAtual = 0;
+    bool apagou = false;
+    
+    while(atual != NULL) {
+        if (apagou) {
+            apagou = false;
+            atual = primeiro;
+            posicaoAtual = 0;
+        }
+        if (outra.procura(atual->dado) != -1) {
+            this->remove(posicaoAtual);
+            apagou = true;
+        }
+        
+        atual = atual->proximo;
+        posicaoAtual++;
+    }
+    
 }
 
 int Lista::procura(Dado elemento) {
@@ -344,28 +384,49 @@ void Lista::trocaPosicoes(unsigned int x, unsigned int y) {
     
 }
 
+
+
+Lista& Lista::operator+(const Lista& outra) {
+    No* atual = outra.primeiro;
+    
+    while(atual != NULL) {
+        this->insere(atual->dado);
+        atual = atual->proximo;
+    }
+    
+    return *this;
+}
+
+Lista& Lista::operator+=(const Lista& outra) {
+    No* atual = outra.primeiro;
+    
+    while(atual != NULL) {
+        this->insere(atual->dado);
+        atual = atual->proximo;
+    }
+    
+    return *this;
+}
+
+
+
 int main() {
-    Lista lista;
+    Lista l1, l2;
     
-    lista.insere(10);
-    lista.insere(20);
-    lista.insere(30);
-    lista.insere(40);
-    lista.insere(50);
+    for(int i = 0; i < 10; i++) {
+        l1.insere(i+1);
+    }
     
-    lista.insereNaPosicao(1, 15);
-    lista.insereNaPosicao(3, 25);
-    lista.insereNaPosicao(4, 28);
+    for(int i = 1; i < 5; i++) {
+        l2.insere(i+1);
+    }
+
+    l1.imprime();
+    l2.imprime();
     
-    lista.imprime();
-
-    int x, y;
-    cin >> x >> y;
-
-    lista.trocaPosicoes(x, y);
-
-
-    lista.imprime();
+    l1.remove(l2);
+    
+    l1.imprime();
 
     return 0;
 }
