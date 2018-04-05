@@ -36,6 +36,8 @@ class Lista {
         inline bool vazia();
         inline bool posicaoValida(unsigned int posicao);
 
+
+        unsigned int posicaoParaAdicionar(Dado valor);
         void insere(Dado dado);
         void insereNoFim(Dado dado);
         void insereNoInicio(Dado dado);
@@ -116,8 +118,50 @@ inline bool Lista::posicaoValida(unsigned int posicao) {
     return posicao >=0 and posicao <= qtdElementos;
 }
 
+unsigned int Lista::posicaoParaAdicionar(Dado valor) {
+    int posicao = 0;
+    bool encontrouLugar = false;
+    
+    No* atual = primeiro;
+    //No* proximo;
+    
+    while(atual != NULL and not encontrouLugar) {
+        if (atual->proximo != NULL) {
+            // dado >= valor <= proximoDado
+            if (atual->dado >= valor and atual->proximo->dado <= valor) {
+                encontrouLugar = true;
+                posicao++;
+            } else {
+                if (valor > atual->proximo->dado) {
+                    posicao++;
+                } else if (valor > atual->dado) {
+                    encontrouLugar=true;
+                    posicao++;
+                }else {
+                    encontrouLugar = true;
+                }
+            }
+        } else {
+            encontrouLugar = true;
+            if (atual->dado <= valor) {
+                posicao++;
+            }
+        }
+        atual = atual->proximo;
+    }
+    return posicao;
+}
+
 void Lista::insere(Dado dado) {
-    insereNoFim(dado);
+    if (vazia()) {
+        No* elemento = new No(dado);
+        primeiro = elemento;
+        ultimo = elemento;        
+    } else {
+        unsigned int posicao = this->posicaoParaAdicionar(dado);
+        cout << "valor " << dado << "deve ser adicionado na posicao: " << posicao << endl;
+        this->insereNaPosicao(posicao, dado);   
+    }
 }
 
 void Lista::insereNoFim(Dado dado) {
@@ -212,7 +256,7 @@ void Lista::insereNaPosicao(unsigned int posicao, Dado dado) {
         }
         qtdElementos++;
     } else {
-        cerr << "Posição inválida ou inexistente!" << endl;
+        insereNoFim(dado);
     }
 }
 
@@ -532,10 +576,17 @@ Lista& Lista::operator+=(const Lista& outra) {
 
 
 int main() {
-    Lista l1;
+    Lista lista;
+    Dado valor;
     
-    for(int i = 0; i < 10; i++) {
-        l1.insere(i+1);
+    for (int i = 1; i < 10; i++) {
+        cin >> valor;
+        lista.insere(valor);
     }
+    
+    lista.imprime();
+    
+    
+    
     return 0;
 }
