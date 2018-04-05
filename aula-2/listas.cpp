@@ -154,12 +154,9 @@ unsigned int Lista::posicaoParaAdicionar(Dado valor) {
 
 void Lista::insere(Dado dado) {
     if (vazia()) {
-        No* elemento = new No(dado);
-        primeiro = elemento;
-        ultimo = elemento;        
+        insereNoFim(dado);      
     } else {
         unsigned int posicao = this->posicaoParaAdicionar(dado);
-        cout << "valor " << dado << "deve ser adicionado na posicao: " << posicao << endl;
         this->insereNaPosicao(posicao, dado);   
     }
 }
@@ -573,8 +570,6 @@ Lista& Lista::operator+=(const Lista& outra) {
     return *this;
 }
 
-
-
 int main() {
     Lista lista;
     Dado valor;
@@ -585,8 +580,6 @@ int main() {
     }
     
     lista.imprime();
-    
-    
     
     return 0;
 }

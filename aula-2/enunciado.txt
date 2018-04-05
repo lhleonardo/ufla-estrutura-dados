@@ -25,7 +25,7 @@ OK 4. Escreva uma função que troque de posição duas células de uma mesma
 OK 5. Implemente um construtor da lista encadeada para permitir a construção
    da lista a partir de um vetor com n elementos.
 
-6. Modifique a lista dinamicamente encadeada ou a lista duplamente encadeada 
+OK 6. Modifique a lista dinamicamente encadeada ou a lista duplamente encadeada 
    para implementar uma lista ordenada. Ou seja, a inserção e remoção deverão
    ser realizadas mantendo a ordem dos elementos. Implemente um método para 
    realizar busca binária nessa lista.
