@@ -29,7 +29,8 @@ class Lista {
         void trocaPosicaoInicio(No* posX, No* posY);
     public: 
         Lista();
-        Lista( Dado* dados, unsigned int quantidade);
+        Lista(Dado* dados, unsigned int quantidade);
+        Lista(const Lista& outra);
         ~Lista();
         
         inline bool vazia();
@@ -51,7 +52,7 @@ class Lista {
 
         void trocaPosicoes(unsigned int x, unsigned int y); 
         
-        Lista& divide(unsigned int n);
+        Lista divide(unsigned int n);
         
         Lista& operator+(const Lista& outra);
         Lista& operator+=(const Lista& outra); 
@@ -63,6 +64,19 @@ Lista::Lista() {
     qtdElementos = 0;
 }
 
+Lista::Lista(const Lista& outra) {
+    primeiro = NULL;
+    ultimo = NULL;
+    qtdElementos = 0;
+    
+    No* atual = outra.primeiro;
+    
+    while(atual != NULL) {
+        this->insere(atual->dado);
+        atual = atual->proximo;        
+    }
+}
+
 Lista::Lista(Dado* dados, unsigned int quantidade) {
     primeiro = NULL;
     ultimo = NULL;
@@ -70,7 +84,6 @@ Lista::Lista(Dado* dados, unsigned int quantidade) {
     
     for(unsigned int i = 0; i < quantidade; i++)
         this->insere(dados[i]);
-    
 }
 
 void Lista::apagaTudo() {
@@ -348,13 +361,65 @@ void Lista::trocaPosicaoFim(No* posX, No* posY) {
     ultimo = posX;           
 }
 
-void Lista::trocaPosicoes(unsigned int x, unsigned int y) {
+void Lista::trocaPosicoes(unsigned int pos1, unsigned int pos2) {
+    unsigned 
+    int x, y;
+    if (pos1 > pos2) {
+        y = pos1;
+        x = pos2;
+    } else {
+        x = pos1;
+        y = pos2;
+    }
     No* posX = this->acessaPosicao(x);
     No* posY = this->acessaPosicao(y);
 
     if ((y - x) == 1) {
         // podem ser adjacentes, mas pode que um deles tambem esteja nos extremos.
         // ou os dois, vai que a lista so tem 2 elementos
+        if (x==0) {
+            posX->proximo = posY->proximo;
+            posX->proximo->anterior = posX;
+            posX->anterior = posY;
+            
+            posY->proximo = posX;
+            posY->anterior = NULL;
+            primeiro = posY;
+        } else if (y == (qtdElementos-1)) {
+            posY->anterior = posX->anterior;
+            posY->anterior->proximo = posY;
+            
+            posY->proximo = posX;
+            posX->anterior = posY;
+            posX->proximo = NULL;
+            
+            ultimo = posX;            
+        } else {
+            No* anteriorX = posX->anterior;
+            No* proximoY = posY->proximo;
+            
+            posY->anterior = anteriorX;
+            anteriorX->proximo = posY;
+            posY->proximo = posX;
+            
+            posX->anterior = posY;
+            posX->proximo = proximoY;
+            proximoY->anterior = posX;     
+        }
+    } else if(x == 0 and y == (qtdElementos-1)) {
+        No* proximoX = posX->proximo;
+        No* anteriorY = posY->anterior; 
+        
+        posX->anterior = anteriorY;
+        anteriorY->proximo = posX;
+        posX->proximo = NULL;     
+        
+        posY->anterior = NULL;
+        posY->proximo = proximoX;
+        proximoX->anterior = posY;
+        
+        primeiro = posY;
+        ultimo = posX;  
         
     } else if (x == 0) {
         trocaPosicaoInicio(posX, posY);
@@ -363,7 +428,6 @@ void Lista::trocaPosicoes(unsigned int x, unsigned int y) {
         trocaPosicaoFim(posX, posY);
 
     } else {    
-        cout << "fez nada"    << endl;
         No* anteriorX = posX->anterior;
         No* proximoX = posX->proximo;
 
@@ -378,13 +442,28 @@ void Lista::trocaPosicoes(unsigned int x, unsigned int y) {
 
         posY->anterior->proximo = posY;
         posY->proximo->anterior = posY;
-
     }
-    
-    
 }
 
-
+Lista Lista::divide(unsigned int n) {
+    
+    if (this->posicaoValida(n)) {
+        Lista nova;
+        
+        No* atual = this->acessaPosicao(n+1);
+        
+        while(atual != NULL) {
+            nova.insere(atual->dado);
+            atual = atual->proximo;
+        }
+        
+        this->remove(nova);
+        
+        return nova;
+    } else {
+        return Lista();
+    }
+}
 
 Lista& Lista::operator+(const Lista& outra) {
     No* atual = outra.primeiro;
@@ -411,22 +490,22 @@ Lista& Lista::operator+=(const Lista& outra) {
 
 
 int main() {
-    Lista l1, l2;
+    Lista l1;
     
     for(int i = 0; i < 10; i++) {
         l1.insere(i+1);
     }
     
-    for(int i = 1; i < 5; i++) {
-        l2.insere(i+1);
-    }
-
+    l1.imprime();
+    
+    int pos;
+    cin >> pos;
+    
+    Lista l2 = l1.divide(pos);
+    
     l1.imprime();
     l2.imprime();
     
-    l1.remove(l2);
-    
-    l1.imprime();
 
     return 0;
 }

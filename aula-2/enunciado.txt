@@ -43,7 +43,7 @@ OK 8. Modifique a lista dinamicamente encadeada para implementar um método
    removeRepetidos(), que percorre seus elementos e remove aqueles que 
    estão repetidos. No caso de repetição, mantenha a primeira ocorrência.
 
-10. Implemente um método que recebe como parâmetro um valor inteiro n e 
+OK 10. Implemente um método que recebe como parâmetro um valor inteiro n e 
     divide a lista encadeada em duas. A lista atual será mantida até a 
     posição n, e o retorno do método será uma segunda lista que começa 
     no primeiro nó logo após a posição n na lista original. 
