@@ -54,6 +54,8 @@ class Lista {
         
         Lista divide(unsigned int n);
         
+        void inverte();
+        
         Lista& operator+(const Lista& outra);
         Lista& operator+=(const Lista& outra); 
 };
@@ -465,6 +467,46 @@ Lista Lista::divide(unsigned int n) {
     }
 }
 
+void Lista::inverte() {
+    No* atual = ultimo;
+    No* aux;
+    
+    unsigned int i = 0;
+    
+    while(atual != NULL) {
+        aux = atual->anterior;
+
+        // se for a primeira posicao, o atual deve ser a primeira posicao
+        // e lembrando que o atual nesse primeiro caso eh o ultimo elemento
+        //
+        // o anterior nao existira para o primeiro elemento
+        if (i == 0) {
+            primeiro = atual;
+            atual->proximo = atual->anterior;
+            atual->anterior = NULL;
+        // se for a ultima posicao, o atual deve ser a ultima tambem, lembrando
+        // que esse atual sera o primeiro elemento na antiga escala.
+        // 
+        // o proximo nao existira para o ultimo elemento
+        } else if(i == (qtdElementos-1)) {
+            ultimo = atual;
+            atual->anterior = atual->proximo;
+            atual->proximo = NULL;
+            aux = atual->proximo;
+        //
+        } else {
+            No* temp = atual->anterior;
+            atual->anterior = atual->proximo;
+            atual->proximo = temp;
+        }
+        
+        atual = aux;
+        i++;
+    }
+    
+    cout << "saiu" << endl;
+}
+
 Lista& Lista::operator+(const Lista& outra) {
     No* atual = outra.primeiro;
     
@@ -495,17 +537,5 @@ int main() {
     for(int i = 0; i < 10; i++) {
         l1.insere(i+1);
     }
-    
-    l1.imprime();
-    
-    int pos;
-    cin >> pos;
-    
-    Lista l2 = l1.divide(pos);
-    
-    l1.imprime();
-    l2.imprime();
-    
-
     return 0;
 }

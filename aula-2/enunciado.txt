@@ -48,7 +48,7 @@ OK 10. Implemente um método que recebe como parâmetro um valor inteiro n e
     posição n, e o retorno do método será uma segunda lista que começa 
     no primeiro nó logo após a posição n na lista original. 
 
-11. Modifique a lista dinamicamente encadeada, para implementar um 
+OK 11. Modifique a lista dinamicamente encadeada, para implementar um 
     método inverter(), que inverte a posição dos elementos da lista 
     (primeiro passa a ser o último e vice-versa). 
     O resultado deve ser armazenado na própria lista e não em uma 
