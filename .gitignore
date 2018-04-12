@@ -1,11 +1,5 @@
-*
-**/*
+*.out
+*.o
 
-#arquivos
-!**.cpp
-!**.txt
+*.exe
 
-# pastas
-
-!**/*-*.cpp
-!**/*.txt
