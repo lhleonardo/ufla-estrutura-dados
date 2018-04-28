@@ -47,7 +47,7 @@ class Lista {
         void imprimeReverso();
         
         void remove(unsigned int posicao);
-        void remove(Lista& outra);
+        void remove(const Lista& outra);
 
         No* acessaPosicao(unsigned int posicao); 
         int procura(Dado valor); // retorna a posicao
@@ -60,6 +60,7 @@ class Lista {
         
         Lista& operator+(const Lista& outra);
         Lista& operator+=(const Lista& outra); 
+        Lista& operator-(const Lista& outra);
 };
 
 Lista::Lista() {
@@ -316,30 +317,37 @@ void Lista::remove(unsigned int posicao) {
         }
         qtdElementos--;
     } else {
-        cerr << "Não foi possivel realizar a remocao. Posicao invalida ou inexistente" << endl;
+        cerr << "Não foi possivel realizar a remocao. Posicao invalida ou inexistente (" << posicao << ")" << endl;
     }
 }
 
-void Lista::remove(Lista& outra) {
+void Lista::remove(const Lista& outra) {
     No* atual = primeiro;
-    unsigned int posicaoAtual = 0;
-    bool apagou = false;
-    
-    while(atual != NULL) {
-        if (apagou) {
-            apagou = false;
-            atual = primeiro;
-            posicaoAtual = 0;
+    No* atualOutra = outra.primeiro;
+
+    int posAtual = 0;
+
+    // para cada elemento da outra lista, devo remover da propria aquele que exista nas duas.
+    while(atualOutra != NULL) {
+        while(atual != NULL) {
+            if (atualOutra->dado == atual->dado){ 
+                this->remove(posAtual);
+                posAtual = 0;
+                // volto pro primeiro para comecar tudo de novo e ir conferindo
+                // ... 
+                // vai que tem mais de um valor presente
+                atual = primeiro;
+            } else {
+                atual = atual->proximo;
+                posAtual++;
+            }
         }
-        if (outra.procura(atual->dado) != -1) {
-            this->remove(posicaoAtual);
-            apagou = true;
-        }
-        
-        atual = atual->proximo;
-        posicaoAtual++;
+        // avanca o proximo da outra para a analise
+        atualOutra = atualOutra->proximo;
+        // volta pro primeiro da lista atual pra conferir
+        atual = primeiro;
+        posAtual = 0;
     }
-    
 }
 
 int Lista::procura(Dado elemento) {
@@ -544,8 +552,6 @@ void Lista::inverte() {
         atual = aux;
         i++;
     }
-    
-    cout << "saiu" << endl;
 }
 
 Lista& Lista::operator+(const Lista& outra) {
@@ -570,15 +576,33 @@ Lista& Lista::operator+=(const Lista& outra) {
     return *this;
 }
 
+Lista& Lista::operator-(const Lista& outra) {
+    
+    this->remove(outra);
+    
+    return *this;
+}
+
 int main() {
     Lista lista;
-    Dado valor;
     
     for (int i = 1; i < 10; i++) {
-        cin >> valor;
-        lista.insere(valor);
+        lista.insere(i+1);
     }
+
+    lista.insere(3);
+
+    lista.imprime();
+    Lista lista2;
+    lista2.insere(3);
+    lista2.insere(4);
+    lista2.insere(5);
+    lista2.insere(6);
+    lista2.insere(7);
+    lista2.insere(8);
     
+    lista = lista - lista2;
+
     lista.imprime();
     
     return 0;
