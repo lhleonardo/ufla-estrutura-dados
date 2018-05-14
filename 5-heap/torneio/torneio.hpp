@@ -9,12 +9,11 @@ class Torneio {
 		unsigned int capacidade;
 		unsigned int qtdElementos;
 		
-		void corrigeSubindo(unsigned int posicao);
+		void classifica();
 		unsigned int qtdPares();
-		bool elementosValidos();
+		bool elementosValidos(unsigned int numero);
 	public:
 		Torneio(Dado* valores, unsigned int qtdElementos);
-
 		Dado& obterGanhador();
 };
 
