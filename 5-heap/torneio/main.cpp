@@ -4,10 +4,16 @@
 using namespace std;
 
 int main() {
-	Dado valores[] = {2, 3, 7, 1, 9, 5, 11, 40};
+	Dado valores[] = {2, 3, 7, 1, 9, 5, 41, 40};
 	Torneio torneio(valores, 8);
-	if (torneio.obterGanhador()!= NULL) {
-		cout << "Ganhador: " << torneio.obterGanhador() << endl;
+	
+	Dado* atual = torneio.obterGanhador();
+	int i = 1;
+	while (atual != NULL) {
+		cout << i << "a posicao: " << *atual << endl;
+		atual = torneio.obterGanhador();
+		i++;
 	}
+
 	return 0;
 }

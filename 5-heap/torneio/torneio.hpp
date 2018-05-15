@@ -14,7 +14,7 @@ class Torneio {
 		bool elementosValidos(unsigned int numero);
 	public:
 		Torneio(Dado* valores, unsigned int qtdElementos);
-		Dado& obterGanhador();
+		Dado* obterGanhador();
 };
 
 #endif

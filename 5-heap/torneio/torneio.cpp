@@ -36,13 +36,13 @@ Torneio::Torneio(Dado* valores, unsigned int qtdElementos) {
 	// da ultima posicao, enquanto tiver valores informados devera ser armazenado
 	// na mesma ordem do que foi informado
 	
-	unsigned int limite = this->capacidade - this->qtdElementos;
-	for(unsigned int i = capacidade-1; i >= limite; i--) {
+	unsigned int posicao = this->capacidade - 1;
+	for(int i = qtdElementos-1; i >= 0; i--, posicao--) {
 		// crio um novo ponteiro para o valor informado, ja que o torneio vai levando o maior
 		// pra cima, entao nada mais facil que levar o endereco da memoria
-		this->elementos[i] = new Dado(valores[i]);
+		this->elementos[posicao] = new Dado(valores[i]);
 	}
-	
+
 	classifica();
 }
 
@@ -58,6 +58,7 @@ void Torneio::classifica() {
 		for(unsigned int i = 0; i < rodadas; i++) {
 			// pega o pai da devida posicao
 			posResultado = ((posicaoAvaliada+1)/2)-1;
+
 			// se alguma das duas sao nulas, quem ganha o torneio eh aquele que nao eh nulo
 			if ((this->elementos[posicaoAvaliada] == NULL) or 
 				(this->elementos[posicaoAvaliada-1] == NULL)) {
@@ -68,7 +69,7 @@ void Torneio::classifica() {
 					this->elementos[posResultado] = this->elementos[posicaoAvaliada];
 				}
 			} else {
-				if (this->elementos[posicaoAvaliada] > this->elementos[posicaoAvaliada-1]) {
+				if (*this->elementos[posicaoAvaliada] > *this->elementos[posicaoAvaliada-1]) {
 					this->elementos[posResultado] = this->elementos[posicaoAvaliada];
 				} else {
 					this->elementos[posResultado] = this->elementos[posicaoAvaliada - 1];
@@ -77,9 +78,20 @@ void Torneio::classifica() {
 			posicaoAvaliada = posicaoAvaliada - 2;
 		}
 		rodadas = rodadas / 2;
-	} while(rodadas >=1);
+	} while(rodadas >=1);	
 }
 
-Dado& Torneio::obterGanhador() {
-	return *this->elementos[0];
+Dado* Torneio::obterGanhador() {
+	Dado* valor = new Dado(*this->elementos[0]);
+	
+	for(unsigned int i = 1; i < this->capacidade; i++) {
+		if (this->elementos[i] == this->elementos[0]) {
+			this->elementos[i] = NULL;
+		}
+	}
+
+	this->elementos[0] = NULL;
+
+	classifica();
+	return valor;
 }
