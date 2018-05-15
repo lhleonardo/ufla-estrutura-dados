@@ -46,6 +46,15 @@ Torneio::Torneio(Dado* valores, unsigned int qtdElementos) {
 	classifica();
 }
 
+Torneio::~Torneio() {
+	for(unsigned int i = 0; i < this->capacidade; i++) {
+		if (this->elementos[i] != NULL) {
+			delete this->elementos[i];
+		}
+	}
+	delete [] this->elementos;
+}
+
 void Torneio::classifica() {
 	// quantas vezes deverá fazer as rodadas de um torneio
 	unsigned int rodadas = this->qtdElementos/2;
