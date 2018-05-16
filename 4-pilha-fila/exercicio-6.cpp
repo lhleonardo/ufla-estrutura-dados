@@ -74,13 +74,24 @@ Dado Pilha::espia() {
 
 Dado Pilha::desempilha() {
     Fila aux;
-    Dado topo;
-    cout << "desempilha(): Vai ver se o topo existe" << endl;
-    if (pegaTopo(&aux, &topo, true)) {
-        return topo;
+    Dado topo = -1;
+    // cout << "desempilha(): Vai ver se o topo existe" << endl;
+    // if (pegaTopo(&aux, &topo, true)) {
+    //     return topo;
+    // }
+
+    while(this->registros->qtdElementos()) {
+        if (this->registros->qtdElementos() == 1) {
+            topo = this->registros->espia();
+        }
+        aux.enfileira(this->registros->desenfileira());
     }
 
-    return -1;
+    while(aux.qtdElementos()) {
+        this->registros->enfileira(aux.desenfileira());
+    }
+
+    return topo;
 }
 
 void Pilha::imprime() {
