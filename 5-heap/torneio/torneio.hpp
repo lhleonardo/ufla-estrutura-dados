@@ -16,6 +16,8 @@ class Torneio {
 		Torneio(Dado* valores, unsigned int qtdElementos);
 		~Torneio();
 		Dado* obterGanhador();
+
+		void imprime();
 };
 
 #endif

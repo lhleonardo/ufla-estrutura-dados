@@ -104,3 +104,23 @@ Dado* Torneio::obterGanhador() {
 	classifica();
 	return valor;
 }
+
+void Torneio::imprime() {
+	// TOPO
+	cout << "\t\t\t\t\t+-------- 50 --------+\t\t\t\t\t" << endl;
+	cout << "\t\t\t\t\t|                    |\t\t\t\t\t" << endl;
+	cout << "\t\t\t\t\t|                    |\t\t\t\t\t" << endl;
+	
+	// PRIMEIRA LINHA
+	cout << "\t\t\t\t +---- 50 ----+";
+	cout << "       ";
+	cout << "+---- 30 ----+    " << endl;
+	cout << "\t\t\t\t |            |" << endl;
+	cout << "\t\t\t\t |            |" << endl;
+	cout << "\t\t\t\t |            |" << endl;
+	
+	// SEGUNDA LINHA
+	cout << "\t\t\t +---- 50 ----+";
+	cout << "       ";
+	cout << "+---- 30 ----+    " << endl;
+}
