@@ -20,6 +20,7 @@ void Fila::enfileira(Dado valor) {
     No* elemento = new No(valor);
 
     if (this->fim != NULL) {
+        cout << "Ultimo: " << this->fim->dado << endl;;
         this->fim->proximo = elemento;
     }
     

@@ -73,25 +73,18 @@ Dado Pilha::espia() {
 }
 
 Dado Pilha::desempilha() {
-    Fila aux;
-    Dado topo = -1;
-    // cout << "desempilha(): Vai ver se o topo existe" << endl;
-    // if (pegaTopo(&aux, &topo, true)) {
-    //     return topo;
-    // }
+    Fila auxiliar;
+    while(this->registros->qtdElementos() > 1) {
+        auxiliar.enfileira(this->registros->desenfileira());
+    }
+    Dado valor = this->registros->desenfileira();
 
-    while(this->registros->qtdElementos()) {
-        if (this->registros->qtdElementos() == 1) {
-            topo = this->registros->espia();
-        }
-        aux.enfileira(this->registros->desenfileira());
+    cout << "Tamanho auxiliar: " << auxiliar.qtdElementos() << endl;
+    while(auxiliar.qtdElementos() > 0) {
+        this->registros->enfileira(auxiliar.desenfileira());
     }
 
-    while(aux.qtdElementos()) {
-        this->registros->enfileira(aux.desenfileira());
-    }
-
-    return topo;
+    return valor;
 }
 
 void Pilha::imprime() {
@@ -101,12 +94,16 @@ void Pilha::imprime() {
 int main() {
     Pilha pilha;
 
-    pilha.empilha(1);
-    pilha.empilha(2);
-    pilha.empilha(3);
-    pilha.empilha(4);
     pilha.empilha(5);
-
+    cout << "..." << endl;
+    pilha.empilha(4);
+    cout << "..." << endl;
+    pilha.empilha(3);
+    cout << "..." << endl;
+    pilha.empilha(2);
+    cout << "..." << endl;
+    pilha.empilha(1);
+    cout << "..." << endl;
     pilha.imprime();
 
     cout << "Valor desempilhado: " << pilha.desempilha() << endl;
