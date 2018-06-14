@@ -115,11 +115,7 @@ noh* avl :: busca(Dado d){
 }
 
 void avl :: insere(Dado dado){
-    cout << "---------------------------" << endl;
-    cout << "Vou inserir o " << dado << " e a raiz " << (raiz != NULL ? "não é nula" : "é nula") << endl;
     raiz = insereAux(raiz, dado);
-    cout << "---------------------------" << endl;
-    cout << endl;
 }
 
 noh* avl :: insereAux(noh* umNoh, Dado dado){
@@ -133,12 +129,10 @@ noh* avl :: insereAux(noh* umNoh, Dado dado){
     if(dado < umNoh->valor){
         umNoh->esq  = insereAux(umNoh->esq, dado);
         umNoh->esq->pai = umNoh;
-        cout << umNoh->esq->valor << " está a esquerda de " << umNoh->valor << endl;
     }
     else if(dado > umNoh->valor){
         umNoh->dir = insereAux(umNoh->dir,dado);
         umNoh->dir->pai = umNoh;
-        cout << umNoh->dir->valor << " está a direita de " << umNoh->valor << endl;
     }
     else{ // não temos elementos repetidos
         cerr << "Elemento repetido : " << dado << endl;
@@ -153,10 +147,7 @@ noh* avl :: insereAux(noh* umNoh, Dado dado){
 
 noh* avl :: arrumaBalanceamento(noh* umNoh){
     //atualiza altura
-    cout << "Arrumando o balanceamento a partir de " << umNoh->valor << endl;
-    cout << "Altura atual: " << umNoh->altura << endl;
     umNoh->altura = 1+max(calcAltura(umNoh->esq),calcAltura(umNoh->dir));
-    cout << "Nova altura: " << umNoh->altura << endl;
 
     //checa o balanceamento  
     int bal = umNoh->fatorBalanceamento();
@@ -462,15 +453,12 @@ bool avl :: verificaNoh(noh* umNoh){
     noh* dir = umNoh->dir;
     
     if((pai != NULL) and (pai->esq != umNoh) and(pai->dir != umNoh)){
-        cout << "entrou aqui" << endl;
         return false; //pai nao sabe que nó é seu filho
     }
     if((esq != NULL) and (esq->pai != umNoh)){
-        cout << "entrou foi aqui" << endl;
         return false; // filhos esquerdo nao reconhece nó como pai
     }
     if((dir != NULL) and(dir->pai != umNoh)){
-        cout << "mentira que foi aqui" << endl;
         return false; //filho direito nao reconhece nó como pai
     }
     //todos os ponteiros do nó em seus devidos lugares
@@ -510,19 +498,30 @@ bool avl :: percorreVerificandoAux(noh* atual){
 int main() {
     avl tree;
     
-    tree.insere(50);
-    tree.insere(40);
-    tree.insere(60);
-    tree.insere(20);
-    tree.insere(70);
-    tree.insere(5);
-    tree.insere(1);
-    tree.insere(120);
     tree.insere(100);
-    tree.insere(1200);
+    tree.percorreEmOrdem();
     
-    //~ tree.percorreEmOrdem();
-    //~ cout << "Verificando : " << tree.percorreVerificando() << endl;
+    tree.insere(100);
+    tree.percorreEmOrdem();
+    
+    tree.insere(100);
+    tree.percorreEmOrdem();
+
+
+    tree.insere(5);
+    tree.insere(2);
+    tree.insere(1);
+    tree.insere(21);
+    tree.insere(7);
+    tree.insere(18);
+    tree.insere(12);
+    tree.insere(13);
+    tree.insere(4);
+    tree.insere(8);
+    tree.insere(25);
+    tree.insere(32);
+    tree.insere(6);
+
     return 0;
 }
 
