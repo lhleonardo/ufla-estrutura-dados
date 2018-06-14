@@ -29,6 +29,10 @@ class Node {
         delete left;
         delete right;
     }
+
+    bool isLeaf() {
+        return this->left == NULL and this->right == NULL;
+    }
 };
 
 class BinaryTree {
@@ -51,6 +55,9 @@ class BinaryTree {
     void walkToCountLeafs(Node* reference, unsigned& size);
 
     void numberOfNodes(Node* reference, unsigned int& result);
+
+
+    bool isFull(Node* reference, unsigned int level, int& levelLastLeaf, bool& isFounded, unsigned& qtdLeafs); 
 
   public:
     BinaryTree();
@@ -321,8 +328,63 @@ bool BinaryTree::isCompleted() {
 
 }
 
-bool BinaryTree::isFull() {
+bool BinaryTree::isFull(Node* reference, unsigned int level, int& levelLastLeaf, bool& isFounded, unsigned& qtdLeafs) {
+    if (reference != NULL) {
+        this->isFull(reference->left, level+1, levelLastLeaf, isFounded, qtdLeafs);
 
+        // comecar tratamento apenas quando for uma folha
+        if (reference->isLeaf()) {
+            cout << reference->value << "eh folha do nivel " << level << endl;
+            cout << "Ultima folha encontrada: " << levelLastLeaf << endl;
+            cout << endl;
+
+            if (not isFounded and levelLastLeaf != -1) {
+                levelLastLeaf = level;
+                isFounded = true;
+                qtdLeafs++;
+            } else {
+                if (level!= -1) {
+                    // ja nao eh uma arvore completa
+                    if (level != levelLastLeaf) {
+                        isFounded = false;
+                        levelLastLeaf = -1;
+                    } else {
+                        qtdLeafs++;
+                    }
+                }
+            }
+        }
+
+        this->isFull(reference->right, level+1, levelLastLeaf, isFounded, qtdLeafs);
+    } 
+
+    if (level == 0){
+        int probablyLeafs = (this->size + 1) / 2;
+        if (isFounded and qtdLeafs == probablyLeafs) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+}
+
+bool BinaryTree::isFull() {
+    float aux = log2f(this->size + 1);
+    int temp = aux;
+    // verificando se eh um numero inteiro sem nenhum tipo de casa decimal, 
+    // ou ainda assim com arredondamento.
+    // se o log2(size) for um numero inteiro, entao obedece o numero de elementos possiveis
+    // para poder ser uma arvore cheia
+    if (aux == temp) {
+        bool found = false;
+        int lastLeaf = 0;
+        unsigned int qtdLeafs = 0;
+
+        return this->isFull(this->root, 0, lastLeaf, found, qtdLeafs);
+    } else {
+        return false;
+    }
 }
 
 bool BinaryTree::isOnlyBinary() {
@@ -340,6 +402,8 @@ int main() {
         cin >> input;
         bt.add(input);
     }
+
+    cout << bt.isFull() << endl;
 
     return 0;
 }
