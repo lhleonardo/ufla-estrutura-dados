@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
@@ -47,7 +48,9 @@ class BinaryTree {
     void preOrder(Node* reference, unsigned int level);
     void posOrder(Node* reference, unsigned int level);
 
-    void numberOfNodes(Node* reference, unsigned& result);
+    void walkToCountLeafs(Node* reference, unsigned& size);
+
+    void numberOfNodes(Node* reference, unsigned int& result);
 
   public:
     BinaryTree();
@@ -60,7 +63,15 @@ class BinaryTree {
     void posOrder();
     void inOrder();
 
-    unsigned numberOfNodes();
+    unsigned int numberOfLeafs();
+
+    unsigned int numberOfNodes();
+
+    bool isFull();
+    bool isOnlyBinary();
+
+    bool isCompleted();
+
 };
 
 BinaryTree::BinaryTree() {
@@ -271,6 +282,26 @@ void BinaryTree::posOrder() {
     cout << endl;
 }
 
+unsigned BinaryTree::numberOfLeafs() {
+    
+    unsigned result = 0;
+
+    this->walkToCountLeafs(this->root, result);
+
+    return result;
+    
+}
+
+void BinaryTree::walkToCountLeafs(Node* reference, unsigned int& result) {
+    if(reference != NULL) {
+        this->walkToCountLeafs(reference->left, result);
+        if (reference->left == NULL and reference->right == NULL) {
+            result++;
+        }
+        this->walkToCountLeafs(reference->right, result);
+    }
+}
+
 void BinaryTree::numberOfNodes(Node* reference, unsigned& result) {
     if (reference != NULL) {
         numberOfNodes(reference->left, result);
@@ -279,11 +310,23 @@ void BinaryTree::numberOfNodes(Node* reference, unsigned& result) {
     }
 }
 
-unsigned BinaryTree::numberOfNodes() {
+unsigned int BinaryTree::numberOfNodes() {
     unsigned result = 0;
     numberOfNodes(this->root, result);
 
     return result;
+}
+
+bool BinaryTree::isCompleted() {
+
+}
+
+bool BinaryTree::isFull() {
+
+}
+
+bool BinaryTree::isOnlyBinary() {
+
 }
 
 int main() {
@@ -293,10 +336,10 @@ int main() {
     cin >> numberOfElements;
 
     for (unsigned i = 0; i < numberOfElements; i++) {
+        cout << "Informe o " << (i+1) << "o valor:";
         cin >> input;
         bt.add(input);
     }
 
-    cout << "Quantidade dex nós: " << bt.numberOfNodes() << endl;
     return 0;
 }

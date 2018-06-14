@@ -47,7 +47,7 @@ class BinaryTree {
     void preOrder(Node* reference, unsigned int level);
     void posOrder(Node* reference, unsigned int level);
 
-    void numberOfNodes(Node* reference, unsigned& result);
+    void walkToCountLeafs(Node* reference, unsigned& size);
 
   public:
     BinaryTree();
@@ -60,7 +60,7 @@ class BinaryTree {
     void posOrder();
     void inOrder();
 
-    unsigned numberOfNodes();
+    unsigned numberOfLeafs();
 };
 
 BinaryTree::BinaryTree() {
@@ -271,19 +271,25 @@ void BinaryTree::posOrder() {
     cout << endl;
 }
 
-void BinaryTree::numberOfNodes(Node* reference, unsigned& result) {
-    if (reference != NULL) {
-        numberOfNodes(reference->left, result);
-        result++;
-        numberOfNodes(reference->right, result);
-    }
-}
-
-unsigned BinaryTree::numberOfNodes() {
+unsigned BinaryTree::numberOfLeafs() {
+    
     unsigned result = 0;
-    numberOfNodes(this->root, result);
+
+    this->walkToCountLeafs(this->root, result);
 
     return result;
+    
+}
+
+void BinaryTree::walkToCountLeafs(Node* reference, unsigned int& result) {
+
+    if(reference != NULL) {
+        this->walkToCountLeafs(reference->left, result);
+        if (reference->left == NULL and reference->right == NULL) {
+            result++;
+        }
+        this->walkToCountLeafs(reference->right, result);
+    }
 }
 
 int main() {
@@ -293,10 +299,12 @@ int main() {
     cin >> numberOfElements;
 
     for (unsigned i = 0; i < numberOfElements; i++) {
+        cout << "Informe o " << (i+1) << "o valor:";
         cin >> input;
         bt.add(input);
     }
 
-    cout << "Quantidade dex nós: " << bt.numberOfNodes() << endl;
+    cout << bt.numberOfLeafs() << endl;
+
     return 0;
 }
