@@ -46,11 +46,13 @@ class RedBlackTree {
 
     Node* getNode(Data value);
 
+    void updateLevelOfNode(Node* reference);
+    void checkColors(Node* reference);
+
+    Node* getNodeToAdd(Data value, Position& positionToAdd);
+
     // balance the nodes from the reference
     Node* balance(Node* reference);
-
-    // return the actual root, if its changed
-    Node* addAndBalance(Node* reference, Data value);
 
     void move(Node* older, Node* newer);
 
@@ -114,6 +116,14 @@ Node* RedBlackTree::maxValue(Node* reference) {
     return previous;
 }
 
+void RedBlackTree::updateLevelOfNode(Node* reference) {
+    Node* temp = reference;
+    while (temp != NULL) {
+        temp->level = 1 + max(this->getLevel(temp->left), this->getLevel(temp->right));
+        temp = temp->ancestor;
+    }
+}
+
 Color RedBlackTree::getColor(Node* reference) {
     if (reference == NULL) {
         return BLACK;
@@ -136,71 +146,122 @@ int RedBlackTree::balanceCoefficent(Node* reference) {
     return this->getLevel(reference->left) - this->getLevel(reference->right);
 }
 
+Node* RedBlackTree::getNodeToAdd(Data value, Position& positionToAdd) {
+    Node* current = this->root;
+    Node* previous;
+    while (current != NULL) {
+        previous = current;
+        if (value < current->value) {
+            positionToAdd = LEFT;
+            current = current->left;
+        } else {
+            positionToAdd = RIGHT;
+            current = current->right;
+        }
+    }
+
+    return previous;
+}
+
+void RedBlackTree::checkColors(Node* reference) {
+    Node* father;
+    Node* uncle;
+    Node* granfa;
+    // father and element can not be ROOT
+    while (reference != this->root and reference->ancestor != this->root) {
+        father = reference->ancestor;
+        granfa = father->ancestor;
+        uncle = father == granfa->left ? granfa->right : granfa->left;
+
+        // vermelho nao pode ter filho vermelho
+        if (this->getColor(father) == RED and this->getColor(reference) == RED) {
+            if (this->getColor(granfa) == BLACK and this->getColor(uncle) == RED) {
+                father->color = BLACK;
+                if (uncle != NULL)
+                    uncle->color = BLACK;
+
+                granfa->color = RED;
+
+                if (granfa == this->root) {
+                    granfa->color = BLACK;
+                }
+            } else if (this->getColor(granfa) == BLACK and
+                       this->getColor(uncle) == BLACK) {
+                // rotation
+                granfa = this->balance(granfa);
+            }
+        }
+
+        reference = reference->ancestor;
+    }
+}
+
 void RedBlackTree::add(Data value) {
-    this->root = addAndBalance(this->root, value);
+    if (this->root == NULL) {
+        this->root = new Node(value);
+        this->root->color = BLACK;
+
+        this->size++;
+        return;
+    }
+
+    Node* aux = this->root;
+    Position positionToAdd;
+    Node* father = this->getNodeToAdd(value, positionToAdd);
+
+    Node* current = new Node(value);
+    if (positionToAdd == LEFT) {
+        father->left = current;
+    } else {
+        father->right = current;
+    }
+    current->ancestor = father;
+
+    this->updateLevelOfNode(current);
+    this->checkColors(current);
+
+    this->size++;
 }
 
 Node* RedBlackTree::balance(Node* reference) {
-    reference->level =
-        1 + max(this->getLevel(reference->left), this->getLevel(reference->right));
+    // rotation....
+    int factor = this->balanceCoefficent(reference);
 
-    // classifing colors
+    // right rotation
+    if ((factor > 1) and (this->balanceCoefficent(reference->left) >= 0)) {
+        // change the colors of father and his son
+        reference->left->color = reference->left->color == RED ? BLACK : RED;
+        reference->color = reference->color == RED ? BLACK : RED;
+        return rightRotation(reference);
+    }
 
-    if (reference->ancestor != this->root) {
-        Node* father = reference->ancestor;
-        Node* grandpa = father->ancestor;
-        Node* uncle = (father == grandpa->left ? grandpa->right : grandpa->left);
+    // left and right rotation
+    if ((factor > 1) and (this->balanceCoefficent(reference->left) < 0)) {
+        // correct the left son before rotation
+        reference->left = leftRotation(reference->left);
 
-        if (father->color == RED) {
-            if (uncle->color == BLACK and grandpa->color == RED) {
-                // need to change the colors
-                father->color = father->color == RED ? BLACK : RED;
-                grandpa->color = grandpa->color == RED ? BLACK : RED;
+        reference->left->color = reference->left->color == RED ? BLACK : RED;
+        reference->color = reference->color == RED ? BLACK : RED;
 
-                if (uncle != NULL) {
-                    uncle->color = uncle->color == RED ? BLACK : RED;
-                }
+        return rightRotation(reference);
+    }
 
-            } else {
-                // rotation....
-                int factor = this->balanceCoefficent(reference);
+    // right and left rotation
+    if ((factor < -1) and (this->balanceCoefficent(reference->right) > 0)) {
+        // correct the right son before rotation
+        reference->right = rightRotation(reference->right);
 
-                // right rotation
-                if ((factor > 1) and (this->balanceCoefficent(reference->left) >= 0)) {
-                    father->color = father->color == RED ? BLACK : RED;
-                    grandpa->color = grandpa->color = RED ? BLACK : RED;
+        reference->right->color = reference->right->color == RED ? BLACK : RED;
+        reference->color = reference->color == RED ? BLACK : RED;
 
-                    return rightRotation(reference);
-                }
+        return leftRotation(reference);
+    }
 
-                // left and right rotation
-                if ((factor > 1) and (this->balanceCoefficent(reference->left) < 0)) {
-                    // correct the left son before rotation
-                    reference->left = leftRotation(reference->left);
-
-                    father = reference->left;
-                    father->color = father->color == RED ? BLACK : RED;
-                    grandpa->color = grandpa->color = RED ? BLACK : RED;
-
-                    return rightRotation(reference);
-                }
-
-                // right and left rotation
-                if ((factor < -1) and (this->balanceCoefficent(reference->right) > 0)) {
-                    // correct the right son before rotation
-                    reference->right = rightRotation(reference->right);
-
-                    return leftRotation(reference);
-                }
-
-                // only left rotation
-                if ((factor < -1) and (this->balanceCoefficent(reference->left) <= 0)) {
-                    father->color = father->color == RED ? BLACK : RED;
-                    grandpa->color = grandpa->color = RED ? BLACK : RED;
-                    return leftRotation(reference);
-                }
-            }
-        }
+    // only left rotation
+    if ((factor < -1) and (this->balanceCoefficent(reference->left) <= 0)) {
+        reference->right->color = reference->right->color == RED ? BLACK : RED;
+        reference->color = reference->color == RED ? BLACK : RED;
+        return leftRotation(reference);
     }
 
     // it should happen?
@@ -210,6 +271,9 @@ Node* RedBlackTree::balance(Node* reference) {
 Node* RedBlackTree::rightRotation(Node* reference) {
     // getting left son from node
     Node* aux = reference->left;
+    if (reference == this->root) {
+        this->root = aux;
+    }
 
     // defines that left son of reference is now left son of aux
     // because aux should be the "root" of this subtree
@@ -251,6 +315,10 @@ Node* RedBlackTree::leftRotation(Node* reference) {
     // getting right son from node
     Node* aux = reference->right;
 
+    if (reference == this->root) {
+        this->root = aux;
+    }
+
     // defines that right son of reference is now left son of aux
     // because aux should be the "root" of this subtree
     reference->right = aux->left;
@@ -285,32 +353,6 @@ Node* RedBlackTree::leftRotation(Node* reference) {
 
     // return the new root of this subtree
     return aux;
-}
-
-Node* RedBlackTree::addAndBalance(Node* reference, Data value) {
-    // it's here in two cases: empty tree or correct position was found
-    if (reference == NULL) {
-        return new Node(value);
-    }
-
-    if (value < reference->value) {
-        // recursive adding and found where it should be added
-        reference->left = addAndBalance(reference->left, value);
-        // indicates who is the father of the value
-        reference->left->ancestor = reference;
-    } else if (value > reference->value) {
-        // recursive adding and found where it should be added
-        reference->right = addAndBalance(reference->right, value);
-        // indicates who is the father of the value
-        reference->right->ancestor = reference;
-    } else {
-        // duplicate elements is not allowed
-        cerr << "Duplicate elements: " << value << endl;
-        return reference;
-    }
-
-    // balance after insertion
-    return balance(reference);
 }
 
 bool RedBlackTree::search(Data value) {
@@ -374,7 +416,8 @@ void RedBlackTree::preOrder() {
 
 void RedBlackTree::inOrder(Node* reference, unsigned int level) {
     if (reference != NULL) {
-        cout << "[" << setw(2) << reference->value << ":" << setw(2) << level << "]..";
+        cout << "[" << setw(2) << reference->value << ":" << setw(2) << level;
+        cout << (reference->color == RED ? ":R" : ":B") << "]..";
         this->inOrder(reference->left, level + 1);
         this->inOrder(reference->right, level + 1);
     }
@@ -399,24 +442,15 @@ void RedBlackTree::posOrder() {
 }
 
 int main() {
-    RedBlackTree avl;
+    RedBlackTree rb;
 
-    avl.add(9);
-    avl.add(1);
-    avl.add(4);
-    avl.add(5);
-    avl.add(7);
-    avl.add(13);
-    avl.add(12);
-    avl.add(17);
-    avl.add(35);
-    avl.add(21);
-    avl.add(14);
-    avl.add(2);
-    avl.add(8);
+    rb.add(8);
+    // rb.add(9);
+    rb.add(7);
+    rb.add(6);
+    rb.add(5);
 
-    avl.preOrder();
-    avl.inOrder();
-    avl.posOrder();
+    rb.inOrder();
+
     return 0;
 }
