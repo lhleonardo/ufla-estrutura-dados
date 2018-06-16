@@ -1,173 +1,208 @@
 #include <iostream>
-#include <cstdlib>
-
 
 using namespace std;
 
-//constantes 
 const unsigned PRETO = 0;
 const unsigned VERMELHO = 1;
 
-//usando bit field, para economizar memória
+class noh {
+    friend class arvoreRN;
 
-class noh{
-	friend class arvoreRN;
-	private:
-	unsigned chave : 31;
-	unsigned cor : 1;
-	noh* esq;
-	noh* dir;
-	noh* pai;
+  private:
+    noh* pai;
+    noh* esq;
+    noh* dir;
+    unsigned cor;
+    unsigned chave;
 };
 
-class arvoreRN{
-	private:
-	noh* raiz;
-	bool arrumaInsercao(noh* umNoh);
-	bool arrumaRemocao(noh* umNoh, noh* paiUmNoh);
-	void girarDireita(noh* umNoh);
-	void girarEsquerda(noh* umNoh);
-	//menor e maior valor de uma subarvore com pai em 
-	//raizSub
-	noh* minimoAux(noh* raizSub);
-	noh* maximoAux(noh* raizSub);
-	//transplanta o nó novo para o local onde estava o antigo
-	void transplanta(noh* antigo,noh* novo);
-	void percorreEmOrdemAux(noh* umNoh, int nivel);
-	noh* buscaAux(unsigned chave);
-	
-	public:
-	arvoreRN();
-	bool insere(unsigned umaChave);
-	bool remove(unsigned umaChave);
-	unsigned minimo();
-	unsigned maximo();
-	void percorreEmOrdem();
-	bool busca(unsigned chave);
+//~ noh :: noh(unsigned c){
+//~ chave = c;
+//~ cor = VERMELHO;
+//~ pai = NULL;
+//~ esq = NULL;
+//~ dir = NULL;
+//~ }
+
+class arvoreRN {
+  private:
+    noh* raiz;
+    bool insereAux(noh* umNoh);
+    void percorreEmOrdemAux(noh* umNoh, int nivel);
+    bool arrumaInsercao(noh* umNoh);
+    void rotacaoEsquerda(noh* umNoh);
+    void rotacaoDireita(noh* umNoh);
+
+  public:
+    arvoreRN();
+    ~arvoreRN();
+    bool insere(unsigned c);
+    void percorreEmOrdem();
 };
 
-arvoreRN ::arvoreRN(){
-	raiz = NULL;
+arvoreRN ::arvoreRN() {
+    raiz = NULL;
 }
 
-//insere uma chave na arvore 
-//chama arruma insercao para corrigir eventuais problemas
-bool arvoreRN :: insere(unsigned umaChave){
-	//primeiro criamos um nó para inserção
-	noh* umNoh = new noh;
-	umNoh->chave = umaChave;
-	umNoh->esq = NULL;
-	umNoh->dir = NULL;
-	
-	//checa primeiro se não é o primeiro nó
-	//se for, insere ele, como preto
-	if(raiz == NULL){
-		umNoh->cor = PRETO;
-		umNoh->pai = NULL;
-		raiz = umNoh;
-		return true;
-	}
-	
-	//não é o primeiro nó, busca posicao na arvore
-	noh* atual = raiz;
-	noh* anterior;
-	while(atual != NULL){
-		anterior = atual;
-		if(umaChave > atual->chave){
-			atual = atual->dir;
-		}
-		else{
-			atual = atual->esq;
-		}
-	}
-	
-	//achou posição, insere o nó, como vermelho
-	umNoh->pai = anterior;
-	//cout << "VERMELHO" << endl;
-	umNoh->cor = VERMELHO;
-	while((umNoh != raiz) and (umNoh->pai->cor == VERMELHO)){
-		//encontrando o tio
-		if(umNoh->pai != raiz){
-			if(umNoh->pai == umNoh->pai->pai->esq){
-				tio = umNoh->pai->pai->dir;
-			}
-			else{
-				tio = umNoh->pai->pai>esq;
-			}
-		}
-		else{//se pai é raiz, entao tio é nulo
-			tio = NULL;
-		}
-		//se tio é vermelho, faça o seguinte:
-		//i)altere cor do pai e tio como preto
-		//ii)altere cor do avô como vermelho
-		//iii)mova umNoh para o avô, para continuar verificaçao
-		if((tio != NULL) and (tio->cor == VERMELHO)){
-			tio->cor = PRETO;
-			umNoh->pai->cor = PRETO;
-			umNoh->pai->pai->cor = VERLMELHO;
-			umNoh = umNoh->pai->pai;
-			//daqui volta ao while
-		}
-		else{//tio é preto(NULL também é preto)
-			//tio é preto e pai é vermelho, precisa
-			//fazer rotação, tem 4 situações
-			//EE, ED, DE e DD
-			
-			//Caso EE(esquerda-esquerda)
-			//i)troque cores de pai e avô
-			//ii)rotacione à direita o avô
-			
-			if((umNoh->pai == umNoh->pai->pai->esq)and(umNoh==umNoh->pai-esq)){
-				umNoh->pai->cor = PRETO;
-				umNoh->pai->pai->cor = VERMELHO;
-				girarDireita(umNoh->pai->pai);
-				continue; // volta ao while para continuar checagem
-			}
-			//Caso ED(esquerda-direita);
-			//i)troque nó atual com o pai
-			//ii)rotacione à esquerda o novo nó atual pai
-			//iii)troque cores do pai e do avô (após rotação)
-			//iv)rotacione à direita o avô
-			if((umNoh->pai == umNoh->pai->pai->esq)and(umNoh == umNoh->pai->dir)){
-				umNoh = umNoh->pai;
-				girarEsquerda(umNoh);
-				umNoh->pai->cor = PRETO;
-				umNoh->pai->pai->cor = VERMELHO;
-				girarDireita(umNoh->pai->pai);
-				continue;//volta ao while para continuar checagem
-			}
-			
-			//caso DD(direita-direita)
-			//i)troque cores de pai e avô
-			//ii)rotacione à esquerda o avô
-			if((umNoh->pai == umNoh->pai->pai->dir) and (umNoh == umNoh->pai->dir)){
-				umNoh->pai->cor = PRETO;
-				umNoh->pai->pai->cor = VERMELHO;
-				girarEsquerda(umNoh->pai->pai);
-				continue;//volta ao while para continuar checagem
-			}
-			//caso DE (direita-esquerda)
-			//i)troque nó atual com o pai
-			//ii)rotacione à direita o novo nó atual
-			//iii)troque cores do pai e do avô(após rotação)
-			//iv)rotaciona à esquerda o avô
-			if((umNoh->pai == umNoh->pai->pai->dir) and((umNoh == umNoh->pai->esq)){
-				umNoh = umNoh->pai;
-				girarEsquerda(umNoh);
-				umNoh->pai->cor = PRETO;
-				umNoh->pai->pai->cor = VERMELHO;
-				girarEsquerda(umNoh->pai->pai);
-				continue;
-			}
-		}//fim do else
-	}//fim do while
-	
-	//caso tenhamos alterado a cor da raiz em alguma momento
-	// arrumamos aqui
-	raiz->cor = PRETO;
-	return true;
+arvoreRN ::~arvoreRN() {
+    delete raiz;
 }
-	
+
+bool arvoreRN ::insere(unsigned c) {
+    noh* novo = new noh;
+    novo->chave = c;
+    novo->esq = NULL;
+    novo->dir = NULL;
+
+    if (raiz == NULL) {
+        novo->cor = PRETO;
+        novo->pai = NULL;
+        raiz = novo;
+        return true;
+    }
+    noh* atual = raiz;
+    noh* anterior;
+    while (atual != NULL) {
+        anterior = atual;
+        if (c > atual->chave) {
+            atual = atual->dir;
+        } else {
+            atual = atual->esq;
+        }
+    }
+    novo->pai = anterior;
+    novo->cor = VERMELHO;
+    if (anterior->chave < novo->chave) {
+        anterior->dir = novo;
+    } else {
+        anterior->esq = novo;
+    }
+
+    return arrumaInsercao(novo);
+}
+
+bool arvoreRN ::arrumaInsercao(noh* umNoh) {
+    noh* tio;
+    while ((umNoh != raiz) and (umNoh->pai->cor == VERMELHO)) {
+		// encontrando o tio
+        if (umNoh->pai != raiz) {
+            if (umNoh == umNoh->pai->pai->esq) {
+                tio = umNoh->pai->pai->dir;
+            } else {
+                tio = umNoh->pai->pai->esq;
+            }
+        } else {
+            tio = NULL;
+        }
 
 
+        if ((tio != NULL) and (tio->cor == VERMELHO)) {
+            // alterar as cores do pai, tio e avô
+            umNoh->pai->cor = PRETO;
+            umNoh->pai->pai->cor = VERMELHO;
+            tio->cor = PRETO;
+            // mover umNoh para o avô para continuar a verificação
+            umNoh = umNoh->pai->pai;
+        } else {
+            // tio preto e pai é vermelho
+            // CASO 1 : Rotação a esquerda simples (LL)
+            if ((umNoh == umNoh->pai->esq) and (umNoh->pai == umNoh->pai->pai->esq)) {
+                tio->cor = PRETO;
+				umNoh->pai->cor = PRETO;
+                umNoh->pai->pai->cor = VERMELHO;
+                rotacaoDireita(umNoh->pai->pai);
+                continue;
+            }
+            // CASO 2 : Rotação Esquerda-Direita (LR)
+            if ((umNoh->pai == umNoh->pai->pai->esq) and (umNoh == umNoh->pai->dir)) {
+                umNoh = umNoh->pai;
+				rotacaoEsquerda(umNoh);
+				umNoh->pai->cor = PRETO;
+                umNoh->pai->pai->cor = VERMELHO;
+                rotacaoDireita(umNoh->pai->pai);
+                continue;
+            }
+
+            // CASO 3 : Rotação a direita simples (RR)
+            if ((umNoh->pai == umNoh->pai->pai->dir) and (umNoh == umNoh->pai->dir)) {
+                umNoh->pai->cor = PRETO;
+                umNoh->pai->pai->cor = VERMELHO;
+                rotacaoEsquerda(umNoh->pai->pai);
+                continue;
+            }
+            // CASO 4 : Rotação Direita-Esquerda (RL)
+            if ((umNoh->pai = umNoh->pai->pai->dir) and (umNoh == umNoh->pai->esq)) {
+                umNoh = umNoh->pai;
+                rotacaoDireita(umNoh);
+                umNoh->pai->cor = PRETO;
+                umNoh->pai->pai->cor = VERMELHO;
+                rotacaoEsquerda(umNoh->pai->pai);
+                continue;
+            }
+        }
+    }
+    raiz->cor = PRETO;
+    return true;
+}
+
+void arvoreRN ::percorreEmOrdem() {
+    percorreEmOrdemAux(raiz, 0);
+    cout << endl;
+}
+
+void arvoreRN ::percorreEmOrdemAux(noh* umNoh, int nivel) {
+    if (umNoh != NULL) {
+        percorreEmOrdemAux(umNoh->esq, nivel + 1);
+        cout << umNoh->chave << "/";
+		cout << (umNoh->cor == VERMELHO ? "V/" : "P/") << nivel << "  ";
+        percorreEmOrdemAux(umNoh->dir, nivel + 1);
+    }
+}
+
+void arvoreRN ::rotacaoDireita(noh* umNoh) {
+    noh* aux = umNoh->esq;
+    umNoh->esq = aux->dir;
+    if (aux->dir != NULL) {
+        aux->dir->pai = umNoh;
+    }
+    aux->dir = umNoh;
+    if (umNoh == umNoh->pai->esq) {
+        umNoh->pai->esq = aux;
+    } else {
+        umNoh->pai->dir = aux;
+    }
+    aux->pai = umNoh->pai;
+    umNoh->pai = aux;
+}
+
+void arvoreRN ::rotacaoEsquerda(noh* umNoh) {
+    noh* aux = umNoh->dir;
+    umNoh->dir = aux->esq;
+    if (aux->esq != NULL) {
+        aux->esq->pai = umNoh;
+    }
+    aux->esq = umNoh;
+    if (umNoh->pai == NULL) {
+        raiz = aux;
+    }
+
+    else if (umNoh->pai != NULL) {
+        if (umNoh == umNoh->pai->esq) {
+            umNoh->pai->esq = aux;
+        } else {
+            umNoh->pai->dir = aux;
+        }
+    }
+    aux->pai = umNoh->pai;
+    umNoh->pai = aux;
+}
+
+int main() {
+    arvoreRN tree;
+    tree.insere(10);
+    tree.insere(11);
+    tree.insere(12);
+    tree.insere(13);
+    tree.percorreEmOrdem();
+    return 0;
+}

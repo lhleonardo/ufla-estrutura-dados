@@ -5,16 +5,18 @@ using namespace std;
 typedef int Data;
 
 enum Position { LEFT, RIGHT };
+enum Color {RED, BLACK};
 
 class Node {
     // clang-format off
-  friend class AVLTree;
+  friend class RedBlackTree;
     // clang-format on
 
   private:
     const Data value;
 
     int level;
+    Color color;
 
     Node* ancestor;
     Node* left;
@@ -25,6 +27,7 @@ class Node {
         this->ancestor = NULL;
         this->left = NULL;
         this->right = NULL;
+        this->color = RED;
         this->level = 1;
     }
     ~Node() {
@@ -34,7 +37,7 @@ class Node {
     }
 };
 
-class AVLTree {
+class RedBlackTree {
   private:
     Node* root;
     int size;
@@ -61,8 +64,8 @@ class AVLTree {
     void posOrder(Node* reference, unsigned int level);
 
   public:
-    AVLTree();
-    ~AVLTree();
+    RedBlackTree();
+    ~RedBlackTree();
     void add(Data value);
     void remove(Data value);
     bool search(Data value);
@@ -72,16 +75,16 @@ class AVLTree {
     void inOrder();
 };
 
-AVLTree::AVLTree() {
+RedBlackTree::RedBlackTree() {
     this->root = NULL;
     this->size = 0;
 }
 
-AVLTree::~AVLTree() {
+RedBlackTree::~RedBlackTree() {
     delete this->root;
 }
 
-Node* AVLTree::minValue(Node* reference) {
+Node* RedBlackTree::minValue(Node* reference) {
     Node* current = reference;
     Node* previous;
 
@@ -93,7 +96,7 @@ Node* AVLTree::minValue(Node* reference) {
     return previous;
 }
 
-Node* AVLTree::maxValue(Node* reference) {
+Node* RedBlackTree::maxValue(Node* reference) {
     Node* current = reference;
     Node* previous = current;
 
@@ -105,25 +108,25 @@ Node* AVLTree::maxValue(Node* reference) {
     return previous;
 }
 
-int AVLTree::getLevel(Node* reference) {
+int RedBlackTree::getLevel(Node* reference) {
     if (reference == NULL) {
         return 0;
     }
     return reference->level;
 }
 
-int AVLTree::balanceCoefficent(Node* reference) {
+int RedBlackTree::balanceCoefficent(Node* reference) {
     if (reference == NULL) {
         return 0;
     }
     return this->getLevel(reference->left) - this->getLevel(reference->right);
 }
 
-void AVLTree::add(Data value) {
+void RedBlackTree::add(Data value) {
     this->root = addAndBalance(this->root, value);
 }
 
-Node* AVLTree::balance(Node* reference) {
+Node* RedBlackTree::balance(Node* reference) {
     reference->level =
         1 + max(this->getLevel(reference->left), this->getLevel(reference->right));
 
@@ -154,7 +157,7 @@ Node* AVLTree::balance(Node* reference) {
     return reference;
 }
 
-Node* AVLTree::addAndBalance(Node* reference, Data value) {
+Node* RedBlackTree::addAndBalance(Node* reference, Data value) {
     // it's here in two cases: empty tree or correct position was found
     if (reference == NULL) {
         return new Node(value);
@@ -179,7 +182,7 @@ Node* AVLTree::addAndBalance(Node* reference, Data value) {
     // balance after insertion
     return balance(reference);
 }
-bool AVLTree::search(Data value) {
+bool RedBlackTree::search(Data value) {
     if (this->size == 0)
         return false;
 
@@ -190,7 +193,7 @@ bool AVLTree::search(Data value) {
     return false;
 }
 
-Node* AVLTree::getNode(Data value) {
+Node* RedBlackTree::getNode(Data value) {
     Node* current = root;
     bool found = false;
 
@@ -207,7 +210,7 @@ Node* AVLTree::getNode(Data value) {
     return current;
 }
 
-void AVLTree::move(Node* oldNode, Node* newNode) {
+void RedBlackTree::move(Node* oldNode, Node* newNode) {
     if (this->root == oldNode) {
         this->root = newNode;
     } else {
@@ -225,7 +228,7 @@ void AVLTree::move(Node* oldNode, Node* newNode) {
     }
 }
 
-void AVLTree::preOrder(Node* reference, unsigned int level) {
+void RedBlackTree::preOrder(Node* reference, unsigned int level) {
     if (reference != NULL) {
         this->preOrder(reference->left, level + 1);
         cout << "[" << reference->value << ":" << level << "]..";
@@ -233,12 +236,12 @@ void AVLTree::preOrder(Node* reference, unsigned int level) {
     }
 }
 
-void AVLTree::preOrder() {
+void RedBlackTree::preOrder() {
     this->preOrder(this->root, 0);
     cout << endl;
 }
 
-void AVLTree::inOrder(Node* reference, unsigned int level) {
+void RedBlackTree::inOrder(Node* reference, unsigned int level) {
     if (reference != NULL) {
         cout << "[" << reference->value << ":" << level << "]..";
         this->inOrder(reference->left, level + 1);
@@ -246,12 +249,12 @@ void AVLTree::inOrder(Node* reference, unsigned int level) {
     }
 }
 
-void AVLTree::inOrder() {
+void RedBlackTree::inOrder() {
     this->inOrder(this->root, 0);
     cout << endl;
 }
 
-void AVLTree::posOrder(Node* reference, unsigned int level) {
+void RedBlackTree::posOrder(Node* reference, unsigned int level) {
     if (reference != NULL) {
         this->posOrder(reference->left, level + 1);
         this->posOrder(reference->right, level + 1);
@@ -259,7 +262,7 @@ void AVLTree::posOrder(Node* reference, unsigned int level) {
     }
 }
 
-void AVLTree::posOrder() {
+void RedBlackTree::posOrder() {
     this->posOrder(this->root, 0);
     cout << endl;
 }
