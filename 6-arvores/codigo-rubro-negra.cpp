@@ -173,7 +173,7 @@ void RedBlackTree::checkColors(Node* reference) {
         granfa = father->ancestor;
         uncle = father == granfa->left ? granfa->right : granfa->left;
 
-        // vermelho nao pode ter filho vermelho
+        // RED can't have a RED child
         if (this->getColor(father) == RED and this->getColor(reference) == RED) {
             if (this->getColor(granfa) == BLACK and this->getColor(uncle) == RED) {
                 father->color = BLACK;
