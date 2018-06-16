@@ -444,11 +444,13 @@ void RedBlackTree::posOrder() {
 int main() {
     RedBlackTree rb;
 
-    rb.add(8);
+    rb.add(10);
     // rb.add(9);
     rb.add(7);
     rb.add(6);
     rb.add(5);
+    rb.add(8);
+    rb.add(9);
 
     rb.inOrder();
 
