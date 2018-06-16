@@ -361,32 +361,27 @@ noh* avl ::removeAux(noh* umNoh, Dado dado) {
             aux = sucessor;
             if (sucessor->pai != umNoh) {
                 transplanta(sucessor, sucessor->dir);
-                // atualiza altura de sucessor->pai até umNoh->dir
-
+                // atualiza a altura de sucessor->pai até umNoh->dir
                 noh* aux = sucessor->pai;
                 while (aux != umNoh->dir) {
-                    transplanta(sucessor, sucessor->dir);
-                    // atualiza altura de sucessor->pai até umNoh->dir
-                    noh* aux = sucessor->pai;
-                    while (aux != umNoh->dir) {
-                        aux->altura = 1 + max(calcAltura(aux->esq), calcAltura(aux->dir));
-                        aux = aux->pai;
-                    }
-                    sucessor->dir = arrumaBalanceamento(umNoh->dir);
-                    sucessor->dir->pai = sucessor;
+                    aux->altura = 1 + max(calcAltura(aux->esq), calcAltura(aux->dir));
+                    aux = aux->pai;
                 }
-                transplanta(umNoh, sucessor);
-                sucessor->esq = umNoh->esq;
-                sucessor->esq->pai = sucessor;
+                sucessor->dir = arrumaBalanceamento(umNoh->dir);
+                sucessor->dir->pai = sucessor;
             }
-            // ponteiros ajustador, apagamos o nó
-            umNoh->esq = NULL;
-            umNoh->dir = NULL;
-            delete umNoh;
-
-            // assumimos a nova raiz para fazermos ajustes
-            umNoh = aux;
+            transplanta(umNoh, sucessor);
+            sucessor->esq = umNoh->esq;
+            sucessor->esq->pai = umNoh;
         }
+        // ponteiros ajustador, apagamos o nó
+        umNoh->esq = NULL;
+        umNoh->dir = NULL;
+        delete umNoh;
+
+        // assumimos a nova raiz para fazermos ajustes
+        umNoh = aux;
+
     }
 
     // caso a nova raiz seja nula, devolva-a
@@ -395,7 +390,6 @@ noh* avl ::removeAux(noh* umNoh, Dado dado) {
     }
 
     // verifica e arruma o balanceamento em umNoh
-
     return arrumaBalanceamento(umNoh);
 }
 

@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <iostream>
 
 using namespace std;
@@ -5,7 +6,7 @@ using namespace std;
 typedef int Data;
 
 enum Position { LEFT, RIGHT };
-enum Color {RED, BLACK};
+enum Color { RED, BLACK };
 
 class Node {
     // clang-format off
@@ -16,19 +17,20 @@ class Node {
     const Data value;
 
     int level;
-    Color color;
 
     Node* ancestor;
     Node* left;
     Node* right;
+
+    Color color;
 
   public:
     Node(const Data value) : value(value) {
         this->ancestor = NULL;
         this->left = NULL;
         this->right = NULL;
-        this->color = RED;
         this->level = 1;
+        this->color = RED;
     }
     ~Node() {
         // obviosly i don't delete the ancestor, because this break the tree;
@@ -53,6 +55,7 @@ class RedBlackTree {
     void move(Node* older, Node* newer);
 
     // to process NULL nodes
+    Color getColor(Node* reference);
     int getLevel(Node* reference);
     int balanceCoefficent(Node* reference);
 
@@ -62,6 +65,9 @@ class RedBlackTree {
     void inOrder(Node* reference, unsigned int level);
     void preOrder(Node* reference, unsigned int level);
     void posOrder(Node* reference, unsigned int level);
+
+    Node* leftRotation(Node* reference);
+    Node* rightRotation(Node* reference);
 
   public:
     RedBlackTree();
@@ -108,6 +114,14 @@ Node* RedBlackTree::maxValue(Node* reference) {
     return previous;
 }
 
+Color RedBlackTree::getColor(Node* reference) {
+    if (reference == NULL) {
+        return BLACK;
+    }
+
+    return reference->color;
+}
+
 int RedBlackTree::getLevel(Node* reference) {
     if (reference == NULL) {
         return 0;
@@ -130,31 +144,145 @@ Node* RedBlackTree::balance(Node* reference) {
     reference->level =
         1 + max(this->getLevel(reference->left), this->getLevel(reference->right));
 
-    int factor = this->balanceCoefficent(reference);
+    // classifing colors
 
-    if (factor >= -1 and factor <= 1) {
-        // everything is fine
-        return reference;
-    }
+    if (reference->ancestor != this->root) {
+        Node* father = reference->ancestor;
+        Node* grandpa = father->ancestor;
+        Node* uncle = (father == grandpa->left ? grandpa->right : grandpa->left);
 
-    if (factor > 1 and this->balanceCoefficent(reference->left) >= 0) {
-        // right rotation
-    }
+        if (father->color == RED) {
+            if (uncle->color == BLACK and grandpa->color == RED) {
+                // need to change the colors
+                father->color = father->color == RED ? BLACK : RED;
+                grandpa->color = grandpa->color == RED ? BLACK : RED;
 
-    if (factor > 1 and this->balanceCoefficent(reference->right) < 0) {
-        // left and right rotation
-    }
+                if (uncle != NULL) {
+                    uncle->color = uncle->color == RED ? BLACK : RED;
+                }
 
-    if (factor < -1 and this->balanceCoefficent(reference->right) >= 0) {
-        // right and left rotation
-    }
+            } else {
+                // rotation....
+                int factor = this->balanceCoefficent(reference);
 
-    if (factor < -1 and this->balanceCoefficent(reference->left) < 0) {
-        // only left rotation
+                // right rotation
+                if ((factor > 1) and (this->balanceCoefficent(reference->left) >= 0)) {
+                    father->color = father->color == RED ? BLACK : RED;
+                    grandpa->color = grandpa->color = RED ? BLACK : RED;
+
+                    return rightRotation(reference);
+                }
+
+                // left and right rotation
+                if ((factor > 1) and (this->balanceCoefficent(reference->left) < 0)) {
+                    // correct the left son before rotation
+                    reference->left = leftRotation(reference->left);
+
+                    
+
+                    return rightRotation(reference);
+                }
+
+                // right and left rotation
+                if ((factor < -1) and (this->balanceCoefficent(reference->right) > 0)) {
+                    // correct the right son before rotation
+                    reference->right = rightRotation(reference->right);
+
+                    return leftRotation(reference);
+                }
+
+                // only left rotation
+                if ((factor < -1) and (this->balanceCoefficent(reference->left) <= 0)) {
+                    father->color = father->color == RED ? BLACK : RED;
+                    grandpa->color = grandpa->color = RED ? BLACK : RED;
+                    return leftRotation(reference);
+                }
+            }
+        }
     }
 
     // it should happen?
     return reference;
+}
+
+Node* RedBlackTree::rightRotation(Node* reference) {
+    // getting left son from node
+    Node* aux = reference->left;
+
+    // defines that left son of reference is now left son of aux
+    // because aux should be the "root" of this subtree
+    reference->left = aux->right;
+
+    // setting correct ancestor of hierarchical
+    if (reference->left != NULL) {
+        reference->left->ancestor = reference;
+    }
+
+    // ancestor of aux is ancestor of reference
+    aux->ancestor = reference->ancestor;
+
+    // if reference have ancestor (reference is root?)
+    if (reference->ancestor != NULL) {
+        // setting correct ancestor of hierarchical
+        if (reference->ancestor->left == reference) {
+            reference->ancestor->left = aux;
+        } else {
+            reference->ancestor->right = aux;
+        }
+    }
+
+    // reference will be the right child of aux
+    aux->right = reference;
+    aux->right->ancestor = aux;
+
+    // update levels...
+    reference->level = 1 + max(this->balanceCoefficent(reference->left),
+                               this->balanceCoefficent(reference->right));
+    aux->level =
+        1 + max(this->balanceCoefficent(aux->left), this->balanceCoefficent(aux->right));
+
+    // return the new root of this subtree
+    return aux;
+}
+
+Node* RedBlackTree::leftRotation(Node* reference) {
+    // getting right son from node
+    Node* aux = reference->right;
+
+    // defines that right son of reference is now left son of aux
+    // because aux should be the "root" of this subtree
+    reference->right = aux->left;
+
+    // setting correct ancestor of hierarchical
+    if (reference->right != NULL) {
+        reference->right->ancestor = reference;
+    }
+
+    // ancestor of aux is ancestor of reference
+    aux->ancestor = reference->ancestor;
+
+    // if reference have ancestor (reference is root?)
+    if (reference->ancestor != NULL) {
+        // setting correct ancestor of hierarchical
+        if (reference->ancestor->left == reference) {
+            reference->ancestor->left = aux;
+        } else {
+            reference->ancestor->right = aux;
+        }
+    }
+
+    // reference will be the left child of aux
+    aux->left = reference;
+    aux->left->ancestor = aux;
+
+    // update levels...
+    reference->level = 1 + max(this->balanceCoefficent(reference->left),
+                               this->balanceCoefficent(reference->right));
+    aux->level =
+        1 + max(this->balanceCoefficent(aux->left), this->balanceCoefficent(aux->right));
+
+    // return the new root of this subtree
+    return aux;
 }
 
 Node* RedBlackTree::addAndBalance(Node* reference, Data value) {
@@ -182,6 +310,7 @@ Node* RedBlackTree::addAndBalance(Node* reference, Data value) {
     // balance after insertion
     return balance(reference);
 }
+
 bool RedBlackTree::search(Data value) {
     if (this->size == 0)
         return false;
@@ -231,7 +360,7 @@ void RedBlackTree::move(Node* oldNode, Node* newNode) {
 void RedBlackTree::preOrder(Node* reference, unsigned int level) {
     if (reference != NULL) {
         this->preOrder(reference->left, level + 1);
-        cout << "[" << reference->value << ":" << level << "]..";
+        cout << "[" << setw(2) << reference->value << ":" << setw(2) << level << "]..";
         this->preOrder(reference->right, level + 1);
     }
 }
@@ -243,7 +372,7 @@ void RedBlackTree::preOrder() {
 
 void RedBlackTree::inOrder(Node* reference, unsigned int level) {
     if (reference != NULL) {
-        cout << "[" << reference->value << ":" << level << "]..";
+        cout << "[" << setw(2) << reference->value << ":" << setw(2) << level << "]..";
         this->inOrder(reference->left, level + 1);
         this->inOrder(reference->right, level + 1);
     }
@@ -258,11 +387,34 @@ void RedBlackTree::posOrder(Node* reference, unsigned int level) {
     if (reference != NULL) {
         this->posOrder(reference->left, level + 1);
         this->posOrder(reference->right, level + 1);
-        cout << "[" << reference->value << ":" << level << "]..";
+        cout << "[" << setw(2) << reference->value << ":" << setw(2) << level << "]..";
     }
 }
 
 void RedBlackTree::posOrder() {
     this->posOrder(this->root, 0);
     cout << endl;
+}
+
+int main() {
+    RedBlackTree avl;
+
+    avl.add(9);
+    avl.add(1);
+    avl.add(4);
+    avl.add(5);
+    avl.add(7);
+    avl.add(13);
+    avl.add(12);
+    avl.add(17);
+    avl.add(35);
+    avl.add(21);
+    avl.add(14);
+    avl.add(2);
+    avl.add(8);
+
+    avl.preOrder();
+    avl.inOrder();
+    avl.posOrder();
+    return 0;
 }
