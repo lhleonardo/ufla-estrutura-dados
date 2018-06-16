@@ -178,7 +178,9 @@ Node* RedBlackTree::balance(Node* reference) {
                     // correct the left son before rotation
                     reference->left = leftRotation(reference->left);
 
-                    
+                    father = reference->left;
+                    father->color = father->color == RED ? BLACK : RED;
+                    grandpa->color = grandpa->color = RED ? BLACK : RED;
 
                     return rightRotation(reference);
                 }
